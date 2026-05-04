@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mcp-guard"
+version = "0.1.0"
+description = "Drop-in deterministic policy layer for MCP-using AI agents"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [
+    { name = "Euan Crosson", email = "euanmcrosson@gmail.com" },
+]
+keywords = [
+    "ai-security",
+    "prompt-injection",
+    "llm-security",
+    "mcp",
+    "model-context-protocol",
+    "policy",
+    "agent-security",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Security",
+    "Topic :: Software Development :: Libraries",
+]
+dependencies = []  # zero runtime deps — pure stdlib
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/euanmcrosson-dotcom/mcp-guard"
+Repository = "https://github.com/euanmcrosson-dotcom/mcp-guard"
+Issues = "https://github.com/euanmcrosson-dotcom/mcp-guard/issues"
+"Companion (offensive)" = "https://github.com/euanmcrosson-dotcom/purple-scaffold"
+
+[project.scripts]
+mcp-guard = "mcp_guard.cli:main"
+
+[tool.setuptools]
+packages = ["mcp_guard"]

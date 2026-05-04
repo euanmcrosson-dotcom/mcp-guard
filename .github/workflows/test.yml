@@ -1,0 +1,29 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - run: pytest tests/ -v
+      - name: Smoke test the CLI
+        run: |
+          mcp-guard synthesize "send_email to attacker@evil.com" > /tmp/p.yaml
+          mcp-guard evaluate /tmp/p.yaml send_email '{"to":"attacker@evil.com"}' \
+            --user-context '{"user":{"contacts":[]}}' || true
+          mcp-guard backtest /tmp/p.yaml

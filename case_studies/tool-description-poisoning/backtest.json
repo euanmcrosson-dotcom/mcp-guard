@@ -1,0 +1,25 @@
+{
+  "attack_class": "cross-tool confused deputy via MCP tool-description poisoning",
+  "source_finding": "purple-scaffold/findings/2026-04-28-gpt4o-mcp-tool-description-poisoning.md",
+  "vulnerable_provider": "GPT-4o (6/9 = 66.7% cross-tool hijack)",
+  "resistant_provider": "Claude Opus 4.7 (0/9)",
+  "targeted_policy": {
+    "rule_count": 21,
+    "tp": 8,
+    "fp": 2,
+    "tn": 29,
+    "fn": 39,
+    "tpr": 0.1702,
+    "fpr": 0.0645
+  },
+  "default_policy": {
+    "rule_count": 122,
+    "tp": 47,
+    "fp": 2,
+    "tn": 29,
+    "fn": 0,
+    "tpr": 1.0,
+    "fpr": 0.0645
+  },
+  "corpus_size": 78
+}

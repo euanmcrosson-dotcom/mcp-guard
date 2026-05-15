@@ -49,8 +49,10 @@ from .policy import (
 from .synthesis import (
     SynthesisInput,
     synthesize,
+    synthesize_default_policy,
     synthesize_from_text,
 )
+from .synthesis_llm import synthesize_with_llm
 from .backtest import (
     BacktestCase,
     BacktestFailure,
@@ -59,7 +61,7 @@ from .backtest import (
     run_backtest,
 )
 
-__version__ = "0.1.0"
+__version__ = "0.5.0"
 
 __all__ = [
     "Condition",
@@ -69,7 +71,9 @@ __all__ = [
     "evaluate",
     "SynthesisInput",
     "synthesize",
+    "synthesize_default_policy",
     "synthesize_from_text",
+    "synthesize_with_llm",
     "BacktestCase",
     "BacktestFailure",
     "BacktestMetrics",

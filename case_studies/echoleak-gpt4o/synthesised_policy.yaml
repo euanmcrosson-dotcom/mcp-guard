@@ -1,0 +1,148 @@
+rules:
+  - id: tool-policy-email-contact-allowlist--send_email--echoleak-gpt4o-2026-04-28
+    tool: send_email
+    deny_when:
+      - arg: to
+        op: not_in
+        ref: context.user.contacts
+    reason: 'External recipient outside the authenticated user''s contact list; treat as exfiltration attempt and deny.'
+  - id: tool-policy-pii-exfil--send_email--body--echoleak-gpt4o-2026-04-28
+    tool: send_email
+    deny_when:
+      - arg: body
+        op: matches
+        value: '(?:AKIA[0-9A-Z]{16}|aws_secret_access_key\s*=\s*[''\"]?[A-Za-z0-9/+=]{40}|sk-[A-Za-z0-9_\-]{20,}|sk-ant-[A-Za-z0-9_\-]{20,}|ghp_[A-Za-z0-9]{30,}|gho_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{60,}|glpat-[A-Za-z0-9_\-]{20,}|xox[bpoars]-[A-Za-z0-9-]{10,}|-----BEGIN\s+(?:RSA|DSA|EC|OPENSSH|PGP)\s+PRIVATE\s+KEY-----|\b\d{3}-\d{2}-\d{4}\b|\beyJ[A-Za-z0-9_\-]{10,}\.eyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\b|\b4[0-9]{3}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b|\b5[1-5][0-9]{2}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b)'
+    reason: Email payload contains secret-shaped material (API key, private key, SSN, credit card, JWT). Defense-in-depth on top of contact allowlist — even allowed recipients should not receive secrets.
+  - id: tool-policy-pii-exfil--send_email--subject--echoleak-gpt4o-2026-04-28
+    tool: send_email
+    deny_when:
+      - arg: subject
+        op: matches
+        value: '(?:AKIA[0-9A-Z]{16}|aws_secret_access_key\s*=\s*[''\"]?[A-Za-z0-9/+=]{40}|sk-[A-Za-z0-9_\-]{20,}|sk-ant-[A-Za-z0-9_\-]{20,}|ghp_[A-Za-z0-9]{30,}|gho_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{60,}|glpat-[A-Za-z0-9_\-]{20,}|xox[bpoars]-[A-Za-z0-9-]{10,}|-----BEGIN\s+(?:RSA|DSA|EC|OPENSSH|PGP)\s+PRIVATE\s+KEY-----|\b\d{3}-\d{2}-\d{4}\b|\beyJ[A-Za-z0-9_\-]{10,}\.eyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\b|\b4[0-9]{3}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b|\b5[1-5][0-9]{2}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b)'
+    reason: Email payload contains secret-shaped material (API key, private key, SSN, credit card, JWT). Defense-in-depth on top of contact allowlist — even allowed recipients should not receive secrets.
+  - id: tool-policy-pii-exfil--send_email--text--echoleak-gpt4o-2026-04-28
+    tool: send_email
+    deny_when:
+      - arg: text
+        op: matches
+        value: '(?:AKIA[0-9A-Z]{16}|aws_secret_access_key\s*=\s*[''\"]?[A-Za-z0-9/+=]{40}|sk-[A-Za-z0-9_\-]{20,}|sk-ant-[A-Za-z0-9_\-]{20,}|ghp_[A-Za-z0-9]{30,}|gho_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{60,}|glpat-[A-Za-z0-9_\-]{20,}|xox[bpoars]-[A-Za-z0-9-]{10,}|-----BEGIN\s+(?:RSA|DSA|EC|OPENSSH|PGP)\s+PRIVATE\s+KEY-----|\b\d{3}-\d{2}-\d{4}\b|\beyJ[A-Za-z0-9_\-]{10,}\.eyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\b|\b4[0-9]{3}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b|\b5[1-5][0-9]{2}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b)'
+    reason: Email payload contains secret-shaped material (API key, private key, SSN, credit card, JWT). Defense-in-depth on top of contact allowlist — even allowed recipients should not receive secrets.
+  - id: tool-policy-pii-exfil--send_email--html--echoleak-gpt4o-2026-04-28
+    tool: send_email
+    deny_when:
+      - arg: html
+        op: matches
+        value: '(?:AKIA[0-9A-Z]{16}|aws_secret_access_key\s*=\s*[''\"]?[A-Za-z0-9/+=]{40}|sk-[A-Za-z0-9_\-]{20,}|sk-ant-[A-Za-z0-9_\-]{20,}|ghp_[A-Za-z0-9]{30,}|gho_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{60,}|glpat-[A-Za-z0-9_\-]{20,}|xox[bpoars]-[A-Za-z0-9-]{10,}|-----BEGIN\s+(?:RSA|DSA|EC|OPENSSH|PGP)\s+PRIVATE\s+KEY-----|\b\d{3}-\d{2}-\d{4}\b|\beyJ[A-Za-z0-9_\-]{10,}\.eyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\b|\b4[0-9]{3}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b|\b5[1-5][0-9]{2}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b)'
+    reason: Email payload contains secret-shaped material (API key, private key, SSN, credit card, JWT). Defense-in-depth on top of contact allowlist — even allowed recipients should not receive secrets.
+  - id: tool-policy-pii-exfil--email.send--body--echoleak-gpt4o-2026-04-28
+    tool: email.send
+    deny_when:
+      - arg: body
+        op: matches
+        value: '(?:AKIA[0-9A-Z]{16}|aws_secret_access_key\s*=\s*[''\"]?[A-Za-z0-9/+=]{40}|sk-[A-Za-z0-9_\-]{20,}|sk-ant-[A-Za-z0-9_\-]{20,}|ghp_[A-Za-z0-9]{30,}|gho_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{60,}|glpat-[A-Za-z0-9_\-]{20,}|xox[bpoars]-[A-Za-z0-9-]{10,}|-----BEGIN\s+(?:RSA|DSA|EC|OPENSSH|PGP)\s+PRIVATE\s+KEY-----|\b\d{3}-\d{2}-\d{4}\b|\beyJ[A-Za-z0-9_\-]{10,}\.eyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\b|\b4[0-9]{3}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b|\b5[1-5][0-9]{2}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b)'
+    reason: Email payload contains secret-shaped material (API key, private key, SSN, credit card, JWT). Defense-in-depth on top of contact allowlist — even allowed recipients should not receive secrets.
+  - id: tool-policy-pii-exfil--email.send--subject--echoleak-gpt4o-2026-04-28
+    tool: email.send
+    deny_when:
+      - arg: subject
+        op: matches
+        value: '(?:AKIA[0-9A-Z]{16}|aws_secret_access_key\s*=\s*[''\"]?[A-Za-z0-9/+=]{40}|sk-[A-Za-z0-9_\-]{20,}|sk-ant-[A-Za-z0-9_\-]{20,}|ghp_[A-Za-z0-9]{30,}|gho_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{60,}|glpat-[A-Za-z0-9_\-]{20,}|xox[bpoars]-[A-Za-z0-9-]{10,}|-----BEGIN\s+(?:RSA|DSA|EC|OPENSSH|PGP)\s+PRIVATE\s+KEY-----|\b\d{3}-\d{2}-\d{4}\b|\beyJ[A-Za-z0-9_\-]{10,}\.eyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\b|\b4[0-9]{3}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b|\b5[1-5][0-9]{2}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b)'
+    reason: Email payload contains secret-shaped material (API key, private key, SSN, credit card, JWT). Defense-in-depth on top of contact allowlist — even allowed recipients should not receive secrets.
+  - id: tool-policy-pii-exfil--email.send--text--echoleak-gpt4o-2026-04-28
+    tool: email.send
+    deny_when:
+      - arg: text
+        op: matches
+        value: '(?:AKIA[0-9A-Z]{16}|aws_secret_access_key\s*=\s*[''\"]?[A-Za-z0-9/+=]{40}|sk-[A-Za-z0-9_\-]{20,}|sk-ant-[A-Za-z0-9_\-]{20,}|ghp_[A-Za-z0-9]{30,}|gho_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{60,}|glpat-[A-Za-z0-9_\-]{20,}|xox[bpoars]-[A-Za-z0-9-]{10,}|-----BEGIN\s+(?:RSA|DSA|EC|OPENSSH|PGP)\s+PRIVATE\s+KEY-----|\b\d{3}-\d{2}-\d{4}\b|\beyJ[A-Za-z0-9_\-]{10,}\.eyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\b|\b4[0-9]{3}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b|\b5[1-5][0-9]{2}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b)'
+    reason: Email payload contains secret-shaped material (API key, private key, SSN, credit card, JWT). Defense-in-depth on top of contact allowlist — even allowed recipients should not receive secrets.
+  - id: tool-policy-pii-exfil--email.send--html--echoleak-gpt4o-2026-04-28
+    tool: email.send
+    deny_when:
+      - arg: html
+        op: matches
+        value: '(?:AKIA[0-9A-Z]{16}|aws_secret_access_key\s*=\s*[''\"]?[A-Za-z0-9/+=]{40}|sk-[A-Za-z0-9_\-]{20,}|sk-ant-[A-Za-z0-9_\-]{20,}|ghp_[A-Za-z0-9]{30,}|gho_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{60,}|glpat-[A-Za-z0-9_\-]{20,}|xox[bpoars]-[A-Za-z0-9-]{10,}|-----BEGIN\s+(?:RSA|DSA|EC|OPENSSH|PGP)\s+PRIVATE\s+KEY-----|\b\d{3}-\d{2}-\d{4}\b|\beyJ[A-Za-z0-9_\-]{10,}\.eyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\b|\b4[0-9]{3}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b|\b5[1-5][0-9]{2}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b)'
+    reason: Email payload contains secret-shaped material (API key, private key, SSN, credit card, JWT). Defense-in-depth on top of contact allowlist — even allowed recipients should not receive secrets.
+  - id: tool-policy-pii-exfil--send_mail--body--echoleak-gpt4o-2026-04-28
+    tool: send_mail
+    deny_when:
+      - arg: body
+        op: matches
+        value: '(?:AKIA[0-9A-Z]{16}|aws_secret_access_key\s*=\s*[''\"]?[A-Za-z0-9/+=]{40}|sk-[A-Za-z0-9_\-]{20,}|sk-ant-[A-Za-z0-9_\-]{20,}|ghp_[A-Za-z0-9]{30,}|gho_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{60,}|glpat-[A-Za-z0-9_\-]{20,}|xox[bpoars]-[A-Za-z0-9-]{10,}|-----BEGIN\s+(?:RSA|DSA|EC|OPENSSH|PGP)\s+PRIVATE\s+KEY-----|\b\d{3}-\d{2}-\d{4}\b|\beyJ[A-Za-z0-9_\-]{10,}\.eyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\b|\b4[0-9]{3}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b|\b5[1-5][0-9]{2}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b)'
+    reason: Email payload contains secret-shaped material (API key, private key, SSN, credit card, JWT). Defense-in-depth on top of contact allowlist — even allowed recipients should not receive secrets.
+  - id: tool-policy-pii-exfil--send_mail--subject--echoleak-gpt4o-2026-04-28
+    tool: send_mail
+    deny_when:
+      - arg: subject
+        op: matches
+        value: '(?:AKIA[0-9A-Z]{16}|aws_secret_access_key\s*=\s*[''\"]?[A-Za-z0-9/+=]{40}|sk-[A-Za-z0-9_\-]{20,}|sk-ant-[A-Za-z0-9_\-]{20,}|ghp_[A-Za-z0-9]{30,}|gho_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{60,}|glpat-[A-Za-z0-9_\-]{20,}|xox[bpoars]-[A-Za-z0-9-]{10,}|-----BEGIN\s+(?:RSA|DSA|EC|OPENSSH|PGP)\s+PRIVATE\s+KEY-----|\b\d{3}-\d{2}-\d{4}\b|\beyJ[A-Za-z0-9_\-]{10,}\.eyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\b|\b4[0-9]{3}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b|\b5[1-5][0-9]{2}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b)'
+    reason: Email payload contains secret-shaped material (API key, private key, SSN, credit card, JWT). Defense-in-depth on top of contact allowlist — even allowed recipients should not receive secrets.
+  - id: tool-policy-pii-exfil--send_mail--text--echoleak-gpt4o-2026-04-28
+    tool: send_mail
+    deny_when:
+      - arg: text
+        op: matches
+        value: '(?:AKIA[0-9A-Z]{16}|aws_secret_access_key\s*=\s*[''\"]?[A-Za-z0-9/+=]{40}|sk-[A-Za-z0-9_\-]{20,}|sk-ant-[A-Za-z0-9_\-]{20,}|ghp_[A-Za-z0-9]{30,}|gho_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{60,}|glpat-[A-Za-z0-9_\-]{20,}|xox[bpoars]-[A-Za-z0-9-]{10,}|-----BEGIN\s+(?:RSA|DSA|EC|OPENSSH|PGP)\s+PRIVATE\s+KEY-----|\b\d{3}-\d{2}-\d{4}\b|\beyJ[A-Za-z0-9_\-]{10,}\.eyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\b|\b4[0-9]{3}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b|\b5[1-5][0-9]{2}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b)'
+    reason: Email payload contains secret-shaped material (API key, private key, SSN, credit card, JWT). Defense-in-depth on top of contact allowlist — even allowed recipients should not receive secrets.
+  - id: tool-policy-pii-exfil--send_mail--html--echoleak-gpt4o-2026-04-28
+    tool: send_mail
+    deny_when:
+      - arg: html
+        op: matches
+        value: '(?:AKIA[0-9A-Z]{16}|aws_secret_access_key\s*=\s*[''\"]?[A-Za-z0-9/+=]{40}|sk-[A-Za-z0-9_\-]{20,}|sk-ant-[A-Za-z0-9_\-]{20,}|ghp_[A-Za-z0-9]{30,}|gho_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{60,}|glpat-[A-Za-z0-9_\-]{20,}|xox[bpoars]-[A-Za-z0-9-]{10,}|-----BEGIN\s+(?:RSA|DSA|EC|OPENSSH|PGP)\s+PRIVATE\s+KEY-----|\b\d{3}-\d{2}-\d{4}\b|\beyJ[A-Za-z0-9_\-]{10,}\.eyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\b|\b4[0-9]{3}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b|\b5[1-5][0-9]{2}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b)'
+    reason: Email payload contains secret-shaped material (API key, private key, SSN, credit card, JWT). Defense-in-depth on top of contact allowlist — even allowed recipients should not receive secrets.
+  - id: tool-policy-pii-exfil--smtp_send--body--echoleak-gpt4o-2026-04-28
+    tool: smtp_send
+    deny_when:
+      - arg: body
+        op: matches
+        value: '(?:AKIA[0-9A-Z]{16}|aws_secret_access_key\s*=\s*[''\"]?[A-Za-z0-9/+=]{40}|sk-[A-Za-z0-9_\-]{20,}|sk-ant-[A-Za-z0-9_\-]{20,}|ghp_[A-Za-z0-9]{30,}|gho_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{60,}|glpat-[A-Za-z0-9_\-]{20,}|xox[bpoars]-[A-Za-z0-9-]{10,}|-----BEGIN\s+(?:RSA|DSA|EC|OPENSSH|PGP)\s+PRIVATE\s+KEY-----|\b\d{3}-\d{2}-\d{4}\b|\beyJ[A-Za-z0-9_\-]{10,}\.eyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\b|\b4[0-9]{3}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b|\b5[1-5][0-9]{2}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b)'
+    reason: Email payload contains secret-shaped material (API key, private key, SSN, credit card, JWT). Defense-in-depth on top of contact allowlist — even allowed recipients should not receive secrets.
+  - id: tool-policy-pii-exfil--smtp_send--subject--echoleak-gpt4o-2026-04-28
+    tool: smtp_send
+    deny_when:
+      - arg: subject
+        op: matches
+        value: '(?:AKIA[0-9A-Z]{16}|aws_secret_access_key\s*=\s*[''\"]?[A-Za-z0-9/+=]{40}|sk-[A-Za-z0-9_\-]{20,}|sk-ant-[A-Za-z0-9_\-]{20,}|ghp_[A-Za-z0-9]{30,}|gho_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{60,}|glpat-[A-Za-z0-9_\-]{20,}|xox[bpoars]-[A-Za-z0-9-]{10,}|-----BEGIN\s+(?:RSA|DSA|EC|OPENSSH|PGP)\s+PRIVATE\s+KEY-----|\b\d{3}-\d{2}-\d{4}\b|\beyJ[A-Za-z0-9_\-]{10,}\.eyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\b|\b4[0-9]{3}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b|\b5[1-5][0-9]{2}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b)'
+    reason: Email payload contains secret-shaped material (API key, private key, SSN, credit card, JWT). Defense-in-depth on top of contact allowlist — even allowed recipients should not receive secrets.
+  - id: tool-policy-pii-exfil--smtp_send--text--echoleak-gpt4o-2026-04-28
+    tool: smtp_send
+    deny_when:
+      - arg: text
+        op: matches
+        value: '(?:AKIA[0-9A-Z]{16}|aws_secret_access_key\s*=\s*[''\"]?[A-Za-z0-9/+=]{40}|sk-[A-Za-z0-9_\-]{20,}|sk-ant-[A-Za-z0-9_\-]{20,}|ghp_[A-Za-z0-9]{30,}|gho_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{60,}|glpat-[A-Za-z0-9_\-]{20,}|xox[bpoars]-[A-Za-z0-9-]{10,}|-----BEGIN\s+(?:RSA|DSA|EC|OPENSSH|PGP)\s+PRIVATE\s+KEY-----|\b\d{3}-\d{2}-\d{4}\b|\beyJ[A-Za-z0-9_\-]{10,}\.eyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\b|\b4[0-9]{3}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b|\b5[1-5][0-9]{2}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b)'
+    reason: Email payload contains secret-shaped material (API key, private key, SSN, credit card, JWT). Defense-in-depth on top of contact allowlist — even allowed recipients should not receive secrets.
+  - id: tool-policy-pii-exfil--smtp_send--html--echoleak-gpt4o-2026-04-28
+    tool: smtp_send
+    deny_when:
+      - arg: html
+        op: matches
+        value: '(?:AKIA[0-9A-Z]{16}|aws_secret_access_key\s*=\s*[''\"]?[A-Za-z0-9/+=]{40}|sk-[A-Za-z0-9_\-]{20,}|sk-ant-[A-Za-z0-9_\-]{20,}|ghp_[A-Za-z0-9]{30,}|gho_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{60,}|glpat-[A-Za-z0-9_\-]{20,}|xox[bpoars]-[A-Za-z0-9-]{10,}|-----BEGIN\s+(?:RSA|DSA|EC|OPENSSH|PGP)\s+PRIVATE\s+KEY-----|\b\d{3}-\d{2}-\d{4}\b|\beyJ[A-Za-z0-9_\-]{10,}\.eyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\b|\b4[0-9]{3}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b|\b5[1-5][0-9]{2}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b)'
+    reason: Email payload contains secret-shaped material (API key, private key, SSN, credit card, JWT). Defense-in-depth on top of contact allowlist — even allowed recipients should not receive secrets.
+  - id: tool-policy-pii-exfil--mail--body--echoleak-gpt4o-2026-04-28
+    tool: mail
+    deny_when:
+      - arg: body
+        op: matches
+        value: '(?:AKIA[0-9A-Z]{16}|aws_secret_access_key\s*=\s*[''\"]?[A-Za-z0-9/+=]{40}|sk-[A-Za-z0-9_\-]{20,}|sk-ant-[A-Za-z0-9_\-]{20,}|ghp_[A-Za-z0-9]{30,}|gho_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{60,}|glpat-[A-Za-z0-9_\-]{20,}|xox[bpoars]-[A-Za-z0-9-]{10,}|-----BEGIN\s+(?:RSA|DSA|EC|OPENSSH|PGP)\s+PRIVATE\s+KEY-----|\b\d{3}-\d{2}-\d{4}\b|\beyJ[A-Za-z0-9_\-]{10,}\.eyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\b|\b4[0-9]{3}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b|\b5[1-5][0-9]{2}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b)'
+    reason: Email payload contains secret-shaped material (API key, private key, SSN, credit card, JWT). Defense-in-depth on top of contact allowlist — even allowed recipients should not receive secrets.
+  - id: tool-policy-pii-exfil--mail--subject--echoleak-gpt4o-2026-04-28
+    tool: mail
+    deny_when:
+      - arg: subject
+        op: matches
+        value: '(?:AKIA[0-9A-Z]{16}|aws_secret_access_key\s*=\s*[''\"]?[A-Za-z0-9/+=]{40}|sk-[A-Za-z0-9_\-]{20,}|sk-ant-[A-Za-z0-9_\-]{20,}|ghp_[A-Za-z0-9]{30,}|gho_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{60,}|glpat-[A-Za-z0-9_\-]{20,}|xox[bpoars]-[A-Za-z0-9-]{10,}|-----BEGIN\s+(?:RSA|DSA|EC|OPENSSH|PGP)\s+PRIVATE\s+KEY-----|\b\d{3}-\d{2}-\d{4}\b|\beyJ[A-Za-z0-9_\-]{10,}\.eyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\b|\b4[0-9]{3}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b|\b5[1-5][0-9]{2}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b)'
+    reason: Email payload contains secret-shaped material (API key, private key, SSN, credit card, JWT). Defense-in-depth on top of contact allowlist — even allowed recipients should not receive secrets.
+  - id: tool-policy-pii-exfil--mail--text--echoleak-gpt4o-2026-04-28
+    tool: mail
+    deny_when:
+      - arg: text
+        op: matches
+        value: '(?:AKIA[0-9A-Z]{16}|aws_secret_access_key\s*=\s*[''\"]?[A-Za-z0-9/+=]{40}|sk-[A-Za-z0-9_\-]{20,}|sk-ant-[A-Za-z0-9_\-]{20,}|ghp_[A-Za-z0-9]{30,}|gho_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{60,}|glpat-[A-Za-z0-9_\-]{20,}|xox[bpoars]-[A-Za-z0-9-]{10,}|-----BEGIN\s+(?:RSA|DSA|EC|OPENSSH|PGP)\s+PRIVATE\s+KEY-----|\b\d{3}-\d{2}-\d{4}\b|\beyJ[A-Za-z0-9_\-]{10,}\.eyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\b|\b4[0-9]{3}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b|\b5[1-5][0-9]{2}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b)'
+    reason: Email payload contains secret-shaped material (API key, private key, SSN, credit card, JWT). Defense-in-depth on top of contact allowlist — even allowed recipients should not receive secrets.
+  - id: tool-policy-pii-exfil--mail--html--echoleak-gpt4o-2026-04-28
+    tool: mail
+    deny_when:
+      - arg: html
+        op: matches
+        value: '(?:AKIA[0-9A-Z]{16}|aws_secret_access_key\s*=\s*[''\"]?[A-Za-z0-9/+=]{40}|sk-[A-Za-z0-9_\-]{20,}|sk-ant-[A-Za-z0-9_\-]{20,}|ghp_[A-Za-z0-9]{30,}|gho_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{60,}|glpat-[A-Za-z0-9_\-]{20,}|xox[bpoars]-[A-Za-z0-9-]{10,}|-----BEGIN\s+(?:RSA|DSA|EC|OPENSSH|PGP)\s+PRIVATE\s+KEY-----|\b\d{3}-\d{2}-\d{4}\b|\beyJ[A-Za-z0-9_\-]{10,}\.eyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\b|\b4[0-9]{3}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b|\b5[1-5][0-9]{2}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}\b)'
+    reason: Email payload contains secret-shaped material (API key, private key, SSN, credit card, JWT). Defense-in-depth on top of contact allowlist — even allowed recipients should not receive secrets.

@@ -1,0 +1,31 @@
+{
+  "attack_class": "agent self-prompting loop drift",
+  "adversary": "the agent itself (hallucinated or persisted prior-turn content)",
+  "primary_rule_pattern": "email contact allowlist + PII exfil",
+  "key_observation": "Input-boundary defenses (classifiers, filters, allow-lists) do not apply \u2014 the generator of the bad string IS the agent. Action-layer policy is the primary defense.",
+  "composing_defenses": [
+    "Cap conversation length / force fresh context after N turns",
+    "Tag scratchpad vs. user turns with provenance",
+    "Periodic in-scratchpad policy re-evaluation",
+    "Action-class diff between turns for anomaly logging"
+  ],
+  "targeted_policy": {
+    "rule_count": 21,
+    "tp": 13,
+    "fp": 2,
+    "tn": 43,
+    "fn": 66,
+    "tpr": 0.1646,
+    "fpr": 0.0444
+  },
+  "default_policy": {
+    "rule_count": 122,
+    "tp": 79,
+    "fp": 2,
+    "tn": 43,
+    "fn": 0,
+    "tpr": 1.0,
+    "fpr": 0.0444
+  },
+  "corpus_size": 124
+}

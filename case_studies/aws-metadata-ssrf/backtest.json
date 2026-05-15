@@ -1,0 +1,43 @@
+{
+  "attack_class": "SSRF to cloud metadata service / private host",
+  "primary_rule_pattern": "ssrf-private-host",
+  "ssrf_variants_covered": [
+    "AWS IMDS (169.254.169.254)",
+    "GCP metadata (metadata.google.internal)",
+    "Azure IMDS",
+    "Loopback (127.0.0.1)",
+    "RFC1918 private (10.x, 192.168.x, 172.16-31.x)",
+    "Link-local IPv4 (169.254.x.x)",
+    "IPv4-mapped IPv6 loopback ([::ffff:127.0.0.1])",
+    "IPv6 unique-local (fc..) / link-local (fe80:)",
+    "file:// scheme",
+    "gopher:// scheme",
+    "dict:// scheme",
+    "ldap://, ldaps:// schemes (JNDI-adjacent)",
+    "ftp://, jar:// schemes"
+  ],
+  "targeted_policy": {
+    "rule_count": 6,
+    "tp": 8,
+    "fp": 0,
+    "tn": 31,
+    "fn": 39,
+    "tpr": 0.1702,
+    "fpr": 0.0
+  },
+  "default_policy": {
+    "rule_count": 122,
+    "tp": 47,
+    "fp": 2,
+    "tn": 29,
+    "fn": 0,
+    "tpr": 1.0,
+    "fpr": 0.0645
+  },
+  "corpus_size": 78,
+  "residual_risks": [
+    "DNS rebinding (requires IP-pinning HTTP client)",
+    "302 redirect chains (requires per-hop re-evaluation OR disabled redirects)",
+    "IMDSv1 still enabled (enable IMDSv2 with --http-tokens required)"
+  ]
+}

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mcp-guard"
-version = "0.1.0"
+version = "0.5.0"
 description = "Drop-in deterministic policy layer for MCP-using AI agents"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -22,7 +22,7 @@ keywords = [
     "agent-security",
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Information Technology",
     "License :: OSI Approved :: MIT License",
@@ -39,6 +39,30 @@ dependencies = []  # zero runtime deps — pure stdlib
 dev = [
     "pytest>=8.0",
 ]
+# Optional integration extras. Each adds the framework you're plugging into.
+anthropic-mcp = [
+    "mcp>=1.0",
+]
+langchain = [
+    "langchain-core>=0.3",
+]
+llamaindex = [
+    "llama-index-core>=0.11",
+]
+crewai = [
+    "crewai>=0.70",
+]
+llm = [
+    "anthropic>=0.40",
+]
+# Everything (for development / testing the full surface).
+all = [
+    "mcp>=1.0",
+    "langchain-core>=0.3",
+    "llama-index-core>=0.11",
+    "crewai>=0.70",
+    "anthropic>=0.40",
+]
 
 [project.urls]
 Homepage = "https://github.com/euanmcrosson-dotcom/mcp-guard"
@@ -50,4 +74,7 @@ Issues = "https://github.com/euanmcrosson-dotcom/mcp-guard/issues"
 mcp-guard = "mcp_guard.cli:main"
 
 [tool.setuptools]
-packages = ["mcp_guard"]
+packages = ["mcp_guard", "mcp_guard.integrations"]
+
+[tool.setuptools.exclude-package-data]
+"*" = ["case_studies/*", "tests/*"]

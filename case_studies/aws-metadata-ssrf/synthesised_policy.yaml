@@ -1,0 +1,43 @@
+rules:
+  - id: tool-policy-ssrf-private-host--fetch_url--aws-imds-ssrf-2026-05-15
+    tool: fetch_url
+    deny_when:
+      - arg: url
+        op: matches
+        value: '(?i)(?:^(?:file|gopher|dict|ftp|jar|ldap|ldaps)://|(?:^|//)(127(?:\.\d{1,3}){3}|10(?:\.\d{1,3}){3}|192\.168(?:\.\d{1,3}){2}|172\.(?:1[6-9]|2[0-9]|3[01])(?:\.\d{1,3}){2}|169\.254(?:\.\d{1,3}){2}|0\.0\.0\.0|localhost|metadata\.google\.internal|metadata\.azure\.com|\[?::1\]?|\[?::ffff:127|\[?fc[0-9a-f]{2}:|\[?fe80:))'
+    reason: HTTP fetch targets private/internal IP, loopback, or cloud metadata endpoint. Classic SSRF — agents should never hit internal infrastructure from the public path.
+  - id: tool-policy-ssrf-private-host--http_get--aws-imds-ssrf-2026-05-15
+    tool: http_get
+    deny_when:
+      - arg: url
+        op: matches
+        value: '(?i)(?:^(?:file|gopher|dict|ftp|jar|ldap|ldaps)://|(?:^|//)(127(?:\.\d{1,3}){3}|10(?:\.\d{1,3}){3}|192\.168(?:\.\d{1,3}){2}|172\.(?:1[6-9]|2[0-9]|3[01])(?:\.\d{1,3}){2}|169\.254(?:\.\d{1,3}){2}|0\.0\.0\.0|localhost|metadata\.google\.internal|metadata\.azure\.com|\[?::1\]?|\[?::ffff:127|\[?fc[0-9a-f]{2}:|\[?fe80:))'
+    reason: HTTP fetch targets private/internal IP, loopback, or cloud metadata endpoint. Classic SSRF — agents should never hit internal infrastructure from the public path.
+  - id: tool-policy-ssrf-private-host--http_post--aws-imds-ssrf-2026-05-15
+    tool: http_post
+    deny_when:
+      - arg: url
+        op: matches
+        value: '(?i)(?:^(?:file|gopher|dict|ftp|jar|ldap|ldaps)://|(?:^|//)(127(?:\.\d{1,3}){3}|10(?:\.\d{1,3}){3}|192\.168(?:\.\d{1,3}){2}|172\.(?:1[6-9]|2[0-9]|3[01])(?:\.\d{1,3}){2}|169\.254(?:\.\d{1,3}){2}|0\.0\.0\.0|localhost|metadata\.google\.internal|metadata\.azure\.com|\[?::1\]?|\[?::ffff:127|\[?fc[0-9a-f]{2}:|\[?fe80:))'
+    reason: HTTP fetch targets private/internal IP, loopback, or cloud metadata endpoint. Classic SSRF — agents should never hit internal infrastructure from the public path.
+  - id: tool-policy-ssrf-private-host--http_request--aws-imds-ssrf-2026-05-15
+    tool: http_request
+    deny_when:
+      - arg: url
+        op: matches
+        value: '(?i)(?:^(?:file|gopher|dict|ftp|jar|ldap|ldaps)://|(?:^|//)(127(?:\.\d{1,3}){3}|10(?:\.\d{1,3}){3}|192\.168(?:\.\d{1,3}){2}|172\.(?:1[6-9]|2[0-9]|3[01])(?:\.\d{1,3}){2}|169\.254(?:\.\d{1,3}){2}|0\.0\.0\.0|localhost|metadata\.google\.internal|metadata\.azure\.com|\[?::1\]?|\[?::ffff:127|\[?fc[0-9a-f]{2}:|\[?fe80:))'
+    reason: HTTP fetch targets private/internal IP, loopback, or cloud metadata endpoint. Classic SSRF — agents should never hit internal infrastructure from the public path.
+  - id: tool-policy-ssrf-private-host--fetch--aws-imds-ssrf-2026-05-15
+    tool: fetch
+    deny_when:
+      - arg: url
+        op: matches
+        value: '(?i)(?:^(?:file|gopher|dict|ftp|jar|ldap|ldaps)://|(?:^|//)(127(?:\.\d{1,3}){3}|10(?:\.\d{1,3}){3}|192\.168(?:\.\d{1,3}){2}|172\.(?:1[6-9]|2[0-9]|3[01])(?:\.\d{1,3}){2}|169\.254(?:\.\d{1,3}){2}|0\.0\.0\.0|localhost|metadata\.google\.internal|metadata\.azure\.com|\[?::1\]?|\[?::ffff:127|\[?fc[0-9a-f]{2}:|\[?fe80:))'
+    reason: HTTP fetch targets private/internal IP, loopback, or cloud metadata endpoint. Classic SSRF — agents should never hit internal infrastructure from the public path.
+  - id: tool-policy-ssrf-private-host--request--aws-imds-ssrf-2026-05-15
+    tool: request
+    deny_when:
+      - arg: url
+        op: matches
+        value: '(?i)(?:^(?:file|gopher|dict|ftp|jar|ldap|ldaps)://|(?:^|//)(127(?:\.\d{1,3}){3}|10(?:\.\d{1,3}){3}|192\.168(?:\.\d{1,3}){2}|172\.(?:1[6-9]|2[0-9]|3[01])(?:\.\d{1,3}){2}|169\.254(?:\.\d{1,3}){2}|0\.0\.0\.0|localhost|metadata\.google\.internal|metadata\.azure\.com|\[?::1\]?|\[?::ffff:127|\[?fc[0-9a-f]{2}:|\[?fe80:))'
+    reason: HTTP fetch targets private/internal IP, loopback, or cloud metadata endpoint. Classic SSRF — agents should never hit internal infrastructure from the public path.

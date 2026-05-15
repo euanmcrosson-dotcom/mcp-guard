@@ -1,0 +1,21 @@
+{
+  "targeted_policy": {
+    "rule_count": 21,
+    "tp": 8,
+    "fp": 2,
+    "tn": 29,
+    "fn": 39,
+    "tpr": 0.1702,
+    "fpr": 0.0645
+  },
+  "default_policy": {
+    "rule_count": 122,
+    "tp": 47,
+    "fp": 2,
+    "tn": 29,
+    "fn": 0,
+    "tpr": 1.0,
+    "fpr": 0.0645
+  },
+  "corpus_size": 78
+}

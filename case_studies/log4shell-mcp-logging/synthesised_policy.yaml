@@ -1,0 +1,281 @@
+rules:
+  - id: tool-policy-shell-danger--shell_exec--command--log4shell-mcp-2026-05-15
+    tool: shell_exec
+    deny_when:
+      - arg: command
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--shell_exec--cmd--log4shell-mcp-2026-05-15
+    tool: shell_exec
+    deny_when:
+      - arg: cmd
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--shell_exec--script--log4shell-mcp-2026-05-15
+    tool: shell_exec
+    deny_when:
+      - arg: script
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--shell_exec--code--log4shell-mcp-2026-05-15
+    tool: shell_exec
+    deny_when:
+      - arg: code
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--shell_exec--input--log4shell-mcp-2026-05-15
+    tool: shell_exec
+    deny_when:
+      - arg: input
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--run_command--command--log4shell-mcp-2026-05-15
+    tool: run_command
+    deny_when:
+      - arg: command
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--run_command--cmd--log4shell-mcp-2026-05-15
+    tool: run_command
+    deny_when:
+      - arg: cmd
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--run_command--script--log4shell-mcp-2026-05-15
+    tool: run_command
+    deny_when:
+      - arg: script
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--run_command--code--log4shell-mcp-2026-05-15
+    tool: run_command
+    deny_when:
+      - arg: code
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--run_command--input--log4shell-mcp-2026-05-15
+    tool: run_command
+    deny_when:
+      - arg: input
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--run_shell--command--log4shell-mcp-2026-05-15
+    tool: run_shell
+    deny_when:
+      - arg: command
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--run_shell--cmd--log4shell-mcp-2026-05-15
+    tool: run_shell
+    deny_when:
+      - arg: cmd
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--run_shell--script--log4shell-mcp-2026-05-15
+    tool: run_shell
+    deny_when:
+      - arg: script
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--run_shell--code--log4shell-mcp-2026-05-15
+    tool: run_shell
+    deny_when:
+      - arg: code
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--run_shell--input--log4shell-mcp-2026-05-15
+    tool: run_shell
+    deny_when:
+      - arg: input
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--bash--command--log4shell-mcp-2026-05-15
+    tool: bash
+    deny_when:
+      - arg: command
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--bash--cmd--log4shell-mcp-2026-05-15
+    tool: bash
+    deny_when:
+      - arg: cmd
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--bash--script--log4shell-mcp-2026-05-15
+    tool: bash
+    deny_when:
+      - arg: script
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--bash--code--log4shell-mcp-2026-05-15
+    tool: bash
+    deny_when:
+      - arg: code
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--bash--input--log4shell-mcp-2026-05-15
+    tool: bash
+    deny_when:
+      - arg: input
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--exec_command--command--log4shell-mcp-2026-05-15
+    tool: exec_command
+    deny_when:
+      - arg: command
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--exec_command--cmd--log4shell-mcp-2026-05-15
+    tool: exec_command
+    deny_when:
+      - arg: cmd
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--exec_command--script--log4shell-mcp-2026-05-15
+    tool: exec_command
+    deny_when:
+      - arg: script
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--exec_command--code--log4shell-mcp-2026-05-15
+    tool: exec_command
+    deny_when:
+      - arg: code
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--exec_command--input--log4shell-mcp-2026-05-15
+    tool: exec_command
+    deny_when:
+      - arg: input
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--execute--command--log4shell-mcp-2026-05-15
+    tool: execute
+    deny_when:
+      - arg: command
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--execute--cmd--log4shell-mcp-2026-05-15
+    tool: execute
+    deny_when:
+      - arg: cmd
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--execute--script--log4shell-mcp-2026-05-15
+    tool: execute
+    deny_when:
+      - arg: script
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--execute--code--log4shell-mcp-2026-05-15
+    tool: execute
+    deny_when:
+      - arg: code
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--execute--input--log4shell-mcp-2026-05-15
+    tool: execute
+    deny_when:
+      - arg: input
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--system--command--log4shell-mcp-2026-05-15
+    tool: system
+    deny_when:
+      - arg: command
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--system--cmd--log4shell-mcp-2026-05-15
+    tool: system
+    deny_when:
+      - arg: cmd
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--system--script--log4shell-mcp-2026-05-15
+    tool: system
+    deny_when:
+      - arg: script
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--system--code--log4shell-mcp-2026-05-15
+    tool: system
+    deny_when:
+      - arg: code
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--system--input--log4shell-mcp-2026-05-15
+    tool: system
+    deny_when:
+      - arg: input
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--subprocess--command--log4shell-mcp-2026-05-15
+    tool: subprocess
+    deny_when:
+      - arg: command
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--subprocess--cmd--log4shell-mcp-2026-05-15
+    tool: subprocess
+    deny_when:
+      - arg: cmd
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--subprocess--script--log4shell-mcp-2026-05-15
+    tool: subprocess
+    deny_when:
+      - arg: script
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--subprocess--code--log4shell-mcp-2026-05-15
+    tool: subprocess
+    deny_when:
+      - arg: code
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.
+  - id: tool-policy-shell-danger--subprocess--input--log4shell-mcp-2026-05-15
+    tool: subprocess
+    deny_when:
+      - arg: input
+        op: matches
+        value: '(?:;\s*\S|&&\s*\S|\|\|\s*\S|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b|\$\([^)]{1,200}\)|`[^`]{1,200}`|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))|\bdd\s+if=/dev/(?:zero|urandom|random)|\bmkfs\.|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)|:\(\)\{\s*:\|:&\s*\};\s*:|\bInvoke-Expression\b|\biex\s+\(|\biwr\s+[^|]{1,300}\|\s*iex\b|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\(|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://|\benv\s*(?:\||;|$|>)|\bprintenv\b|\bset\s*\||\bcat\s+/proc/\d+/environ|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+[''\"]?(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)|\bfind\s+[^|;]{1,200}-name\s+[''\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx))'
+    reason: Shell argument contains chaining, command substitution, pipe-to-shell, or known-destructive primitive (rm -rf, dd, mkfs, chmod 777, curl|sh, fork bomb). Deny before exec.

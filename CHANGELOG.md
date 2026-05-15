@@ -4,6 +4,66 @@ All notable changes to mcp-guard are documented here. Format inspired
 by [Keep a Changelog](https://keepachangelog.com/); versioning follows
 [SemVer](https://semver.org/).
 
+## [0.3.1] — 2026-05-15
+
+Completes the four-adapter set with LlamaIndex and CrewAI. The
+deferred items from v0.3.0's "blockers" list are now shipped.
+
+### Added
+
+- **`mcp_guard.integrations.llamaindex`** — two integration shapes:
+  - `make_callback_handler(policy, user_context_fn, audit_fn)` returns
+    a LlamaIndex `BaseCallbackHandler` that intercepts
+    `CBEventType.FUNCTION_CALL` events. Wire into
+    `Settings.callback_manager` or pass per-call.
+  - `wrap_tool(tool, policy, ...)` monkey-wraps a `BaseTool.call()`
+    method for ad-hoc per-tool guarding.
+  - Defensive payload extraction handles LlamaIndex's payload-shape
+    evolution across versions.
+- **`mcp_guard.integrations.crewai`** — two surfaces:
+  - `wrap_tool(tool, policy, ...)` wraps a CrewAI tool's `_run()`;
+    idempotent (re-wrapping is a no-op via `_mcp_guard_wrapped` flag).
+  - `wrap_tools(tools, ...)` convenience for batching across an
+    `Agent`'s `tools` list.
+  - Raises `TypeError` with an actionable message if passed a
+    non-CrewAI-shaped object (no `_run` method).
+- **12 new tests** in `tests/test_extensions.py` covering both
+  adapters: callback handler factory import-error path, deny / allow /
+  audit / idempotency / type-check / batch wrapping.
+
+### Changed
+
+- **`pyproject.toml` optional-deps**: added `llamaindex`
+  (`llama-index-core>=0.11`) and `crewai` (`crewai>=0.70`) groups; the
+  `all` extra now includes both.
+- **Tests 85 → 97**, all passing.
+
+### Migration
+
+v0.3.1 is fully backwards-compatible. New adapters live alongside the
+existing ones:
+
+```python
+# LlamaIndex — pip install 'mcp-guard[llamaindex]'
+from llama_index.core import Settings
+from llama_index.core.callbacks import CallbackManager
+from mcp_guard import synthesize_default_policy
+from mcp_guard.integrations.llamaindex import make_callback_handler
+
+Settings.callback_manager = CallbackManager([
+    make_callback_handler(policy=synthesize_default_policy()),
+])
+
+# CrewAI — pip install 'mcp-guard[crewai]'
+from mcp_guard.integrations.crewai import wrap_tools
+
+agent = Agent(
+    role=...,
+    goal=...,
+    tools=wrap_tools(my_tools, policy=synthesize_default_policy()),
+)
+```
+
 ## [0.3.0] — 2026-05-15
 
 The "integrations + LLM fallback + real-world story" release. v0.2.0

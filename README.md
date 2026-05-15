@@ -3,7 +3,7 @@
 [![PyPI](https://img.shields.io/badge/pypi-mcp--guard-blue.svg)](https://pypi.org/project/mcp-guard/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python: 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](pyproject.toml)
-[![Tests: 85 passing](https://img.shields.io/badge/tests-85_passing-success.svg)](tests/)
+[![Tests: 97 passing](https://img.shields.io/badge/tests-97_passing-success.svg)](tests/)
 [![TPR: 1.00 / FPR: 0.06](https://img.shields.io/badge/TPR-1.00_%2F_FPR_0.06-success.svg)](#backtest-corpus)
 
 Drop-in deterministic policy layer for MCP-using AI agents.
@@ -14,13 +14,13 @@ policies at the agent's tool-call boundary, and provides a
 backtest harness for measuring false-positive rate against
 legitimate traffic before deployment.
 
-> **v0.3.0 (2026-05-15):** 9 deterministic rule patterns across 122
-> rules, 78-case backtest corpus, TPR 1.00 / FPR 0.06 on the default
-> policy. Now with **Anthropic MCP SDK + LangChain adapters**,
-> **LLM-augmented synthesis fallback** for novel gap shapes, and a
-> [real-world case study](case_studies/echoleak-gpt4o/) walking the
-> GPT-4o EchoLeak finding from gap → policy → backtest. See
-> [CHANGELOG.md](CHANGELOG.md).
+> **v0.3.1 (2026-05-15):** 9 deterministic rule patterns across 122
+> rules, 78-case backtest corpus, TPR 1.00 / FPR 0.06. **Four
+> framework adapters shipped**: Anthropic MCP SDK, LangChain,
+> LlamaIndex, CrewAI. **LLM-augmented synthesis fallback** for novel
+> gap shapes. Reproducible
+> [real-world case study](case_studies/echoleak-gpt4o/) on the
+> GPT-4o EchoLeak finding. See [CHANGELOG.md](CHANGELOG.md).
 
 This is the defensive companion to the [`purple-scaffold`](https://github.com/euanmcrosson-dotcom/purple-scaffold)
 research probes. Findings from those probes feed into policy
@@ -65,6 +65,8 @@ Optional extras for the integrations you actually use:
 ```bash
 pip install 'mcp-guard[anthropic-mcp]'   # for the Anthropic MCP SDK adapter
 pip install 'mcp-guard[langchain]'       # for the LangChain callback handler
+pip install 'mcp-guard[llamaindex]'      # for the LlamaIndex callback handler / wrap_tool
+pip install 'mcp-guard[crewai]'          # for the CrewAI wrap_tool
 pip install 'mcp-guard[llm]'             # for synthesize_with_llm fallback
 pip install 'mcp-guard[all]'             # everything
 ```
@@ -201,6 +203,54 @@ executor = AgentExecutor(
 If the policy denies a tool call, the handler raises `GuardedToolDenied`
 inside `on_tool_start`, which LangChain surfaces as a tool failure;
 the agent's reasoning chain sees the deny reason and can adapt.
+
+### LlamaIndex
+
+```python
+from llama_index.core import Settings
+from llama_index.core.callbacks import CallbackManager
+from mcp_guard import synthesize_default_policy
+from mcp_guard.integrations.llamaindex import make_callback_handler
+
+Settings.callback_manager = CallbackManager([
+    make_callback_handler(
+        policy=synthesize_default_policy(),
+        user_context_fn=lambda: {"user": {...}},
+    ),
+])
+
+# … your existing agent / query engine code; tool calls are now guarded.
+```
+
+Per-tool variant (no callback manager required):
+
+```python
+from mcp_guard.integrations.llamaindex import wrap_tool
+
+guarded = wrap_tool(my_tool, policy=synthesize_default_policy())
+```
+
+### CrewAI
+
+```python
+from crewai import Agent
+from mcp_guard import synthesize_default_policy
+from mcp_guard.integrations.crewai import wrap_tools
+
+agent = Agent(
+    role="researcher",
+    goal="answer the question",
+    tools=wrap_tools(
+        my_tools,
+        policy=synthesize_default_policy(),
+        user_context_fn=lambda: {"user": {...}},
+    ),
+)
+```
+
+`wrap_tool` is idempotent — re-wrapping is a no-op — so it's safe to
+apply at agent-construction time without tracking which tools were
+already guarded.
 
 ### LLM-augmented synthesis for novel gaps
 

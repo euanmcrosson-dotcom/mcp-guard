@@ -58,8 +58,9 @@ class SynthesisInput:
 
 _PRIVATE_HOST_PATTERN = (
     r"(?i)"
-    r"(?:^|//)"
-    r"("
+    r"(?:"
+    r"^(?:file|gopher|dict|ftp|jar|ldap|ldaps)://"  # dangerous URL schemes (file-read, SSRF chains)
+    r"|(?:^|//)("
     r"127(?:\.\d{1,3}){3}"            # 127.0.0.0/8
     r"|10(?:\.\d{1,3}){3}"            # 10.0.0.0/8
     r"|192\.168(?:\.\d{1,3}){2}"      # 192.168.0.0/16
@@ -70,15 +71,19 @@ _PRIVATE_HOST_PATTERN = (
     r"|metadata\.google\.internal"
     r"|metadata\.azure\.com"
     r"|\[?::1\]?"                      # IPv6 loopback
+    r"|\[?::ffff:127"                  # IPv4-mapped IPv6 loopback
     r"|\[?fc[0-9a-f]{2}:"             # IPv6 unique local
     r"|\[?fe80:"                       # IPv6 link-local
+    r")"
     r")"
 )
 
 _SENSITIVE_READ_PATTERN = (
     r"(?:\.ssh/|id_rsa|id_ed25519|id_dsa|\.aws/|/etc/shadow|/etc/passwd"
-    r"|credentials|kubeconfig|\.gnupg/|\.docker/config|/proc/self/environ"
-    r"|\.netrc|\.pgpass|/root/)"
+    r"|credentials|kubeconfig|\.kube/config|\.gnupg/|\.docker/config"
+    r"|/proc/self/environ|\.netrc|\.pgpass|/root/"
+    r"|\.azure/(?:credentials|accessTokens)|\.config/gcloud/"
+    r"|AWS SSO/cache/|web_identity_token_file)"
 )
 
 _SENSITIVE_WRITE_PATTERN = (
@@ -99,7 +104,7 @@ _SHELL_DANGER_PATTERN = (
     r";\s*\S"                                       # any command chained via ; (agents shouldn't chain)
     r"|&&\s*\S"                                     # any command chained via &&
     r"|\|\|\s*\S"                                   # any || chain
-    r"|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node)\b"
+    r"|\|\s*(?:bash|sh|python|perl|nc|netcat|zsh|ksh|csh|fish|tclsh|ruby|node|pwsh|powershell)\b"
     r"|\$\([^)]{1,200}\)"                           # $(...) substitution
     r"|`[^`]{1,200}`"                               # backticks
     r"|\brm\s+-rf?\s+/(?!tmp(?:/|\s|$))"            # rm -rf / (anything except /tmp)
@@ -107,9 +112,18 @@ _SHELL_DANGER_PATTERN = (
     r"|\bmkfs\."
     r"|\bchmod\s+(?:[0-7]{0,3}777|\+x\s+/)"
     r"|>\s*/dev/(?:sd[a-z]|nvme|mmcblk)"             # disk redirect
-    r"|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh)"         # curl | sh
-    r"|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh)"         # wget | sh
+    r"|\bcurl\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)"    # curl | sh / pwsh
+    r"|\bwget\s+[^|]{1,300}\|\s*(?:bash|sh|pwsh)"    # wget | sh
     r"|:\(\)\{\s*:\|:&\s*\};\s*:"                    # fork bomb
+    # PowerShell-specific abuse primitives
+    r"|\bInvoke-Expression\b"                        # iex
+    r"|\biex\s+\("                                   # iex (string)
+    r"|\biwr\s+[^|]{1,300}\|\s*iex\b"                # iwr ... | iex (PS curl|sh)
+    r"|\bInvoke-WebRequest\s+[^|]{1,300}\|\s*Invoke-Expression\b"
+    r"|\bNew-Object\s+Net\.WebClient[^.]*\.DownloadString\s*\("  # WebClient.DownloadString
+    r"|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs"            # UAC bypass attempt
+    # Java/log4shell-style JNDI lookup (any context)
+    r"|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://"
     r")"
 )
 

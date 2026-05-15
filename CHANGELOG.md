@@ -4,6 +4,108 @@ All notable changes to mcp-guard are documented here. Format inspired
 by [Keep a Changelog](https://keepachangelog.com/); versioning follows
 [SemVer](https://semver.org/).
 
+## [0.3.0] — 2026-05-15
+
+The "integrations + LLM fallback + real-world story" release. v0.2.0
+was a working library; v0.3.0 makes it deployable into the major agent
+frameworks and ships a documented, reproducible attack case study.
+
+### Added
+
+- **`mcp_guard.integrations.anthropic_mcp.MCPGuard`** — drop-in adapter
+  for the Anthropic MCP Python SDK. Construct once with a policy and
+  optional audit callback; call `guard.check(name, args, user_context)`
+  inside your `@server.call_tool()` handler, OR wrap the handler with
+  `@guard.wrap_handler` (both bare and parameterized decorator forms,
+  sync and async auto-detected). Zero runtime dep on the `mcp` package
+  — duck-typed against MCP's call shape, testable without installing.
+- **`mcp_guard.integrations.langchain.make_callback_handler`** —
+  factory that returns a LangChain `BaseCallbackHandler` enforcing the
+  policy on every `on_tool_start`. Deferred import of
+  `langchain_core` — the module imports cleanly without it; the
+  factory raises with an actionable install hint at call time.
+- **`mcp_guard.synthesize_with_llm()`** — LLM-augmented synthesis
+  fallback. First runs the deterministic `synthesize_from_text`; if
+  that returns empty AND `fallback=True`, calls Anthropic Claude with
+  a schema-pinned JSON prompt and validates the response against the
+  full PolicyRule schema (operator allowlist, exactly-one of
+  value/ref, all required fields). The LLM cannot bypass the schema.
+  Network failures, JSON parse errors, missing fields, and invalid
+  operators all return empty policy — we miss before we emit a
+  malformed rule.
+- **`GuardedToolDenied`** exception (`mcp_guard.integrations`) — raised
+  by both adapters on a deny verdict; carries `tool`, `args`,
+  `rule_id`, `reason` for downstream logging.
+- **Real-world case study** at `case_studies/echoleak-gpt4o/` —
+  end-to-end walkthrough of the 2026-04-28 purple-scaffold finding
+  (GPT-4o 66.67% silent compliance vs Claude 0% on EchoLeak-style
+  indirect prompt injection). Includes `gap.txt`, `reproduce.py`,
+  `synthesised_policy.yaml`, `backtest.json` — all reproducible with
+  a single command, no network calls.
+- **Optional-dep groups** in `pyproject.toml`: `anthropic-mcp` (adds
+  `mcp>=1.0`), `langchain` (adds `langchain-core>=0.3`), `llm` (adds
+  `anthropic>=0.40`), `all` (everything).
+
+### Changed
+
+- **5 new attack-shape additions to existing patterns** (no API change):
+  - SSRF: dangerous URL schemes (`file://`, `gopher://`, `dict://`,
+    `ftp://`, `jar://`, `ldap://`, `ldaps://`), IPv4-mapped IPv6
+    loopback (`[::ffff:127.0.0.1]`).
+  - Shell danger: PowerShell primitives (`Invoke-Expression`, `iex`,
+    `iwr|iex`, `WebClient.DownloadString`, `Start-Process -Verb RunAs`),
+    Log4Shell-style JNDI lookup (`${jndi:ldap://...}`).
+  - Sensitive file read: kubeconfig (`~/.kube/config`), Azure CLI
+    cache (`~/.azure/accessTokens.json`), gcloud creds DB, AWS SSO
+    cache, web-identity-token file.
+- **Corpus 61 → 78 cases.** Added file://, gopher://, IPv4-mapped IPv6
+  SSRF; Windows path traversal; PowerShell shell-danger (iex, iwr|iex,
+  UAC RunAs); JNDI shell-injection; kubeconfig / gcloud / Azure CLI
+  reads; bounded DELETE-with-WHERE legit case; public IPv6 / DNS
+  legit cases.
+- **Default-policy metrics improved:** TPR 1.0000 (47/47 attacks),
+  FPR 0.0645 (2/31 legit — only the 2 architecturally-expected
+  first-time-recipient FPs).
+- **Tests 65 → 85.** New `tests/test_extensions.py` covers MCPGuard
+  core + wrap_handler (sync + async), LangChain handler factory
+  (import-error + happy path with stubbed `BaseCallbackHandler`), and
+  the LLM fallback path (deterministic-hit-skips-LLM, valid response,
+  invalid JSON, hallucinated operator, missing fields, empty
+  deny_when, network failure, markdown-fenced response, `{}` response).
+- **Packaging**: `mcp_guard.integrations` added to `packages` list.
+
+### Migration
+
+v0.3.0 is **fully backwards-compatible** with v0.2.0. Existing callers
+of `synthesize_from_text` / `synthesize_default_policy` / `evaluate`
+do not change. To opt into the new surfaces:
+
+```python
+# Anthropic MCP — pip install 'mcp-guard[anthropic-mcp]'
+from mcp_guard import synthesize_default_policy
+from mcp_guard.integrations.anthropic_mcp import MCPGuard
+
+guard = MCPGuard(policy=synthesize_default_policy())
+
+@server.call_tool()
+async def call_tool(name, arguments):
+    guard.check(name, arguments, user_context=current_user_context())
+    return await my_business_logic(name, arguments)
+
+# LangChain — pip install 'mcp-guard[langchain]'
+from mcp_guard.integrations.langchain import make_callback_handler
+
+handler = make_callback_handler(
+    policy=synthesize_default_policy(),
+    user_context_fn=lambda: {"user": {...}},
+)
+
+# LLM fallback — pip install 'mcp-guard[llm]'
+from mcp_guard import synthesize_with_llm
+
+policy = synthesize_with_llm("novel gap pattern", fallback=True)
+```
+
 ## [0.2.0] — 2026-05-15
 
 The "actually shippable" release. v0.1.0 was a scaffold with 2 rule

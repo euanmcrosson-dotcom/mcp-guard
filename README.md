@@ -3,8 +3,8 @@
 [![PyPI](https://img.shields.io/badge/pypi-mcp--guard-blue.svg)](https://pypi.org/project/mcp-guard/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python: 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](pyproject.toml)
-[![Tests: 65 passing](https://img.shields.io/badge/tests-65_passing-success.svg)](tests/)
-[![TPR: 1.00 / FPR: 0.08](https://img.shields.io/badge/TPR-1.00_%2F_FPR_0.08-success.svg)](#backtest-corpus)
+[![Tests: 85 passing](https://img.shields.io/badge/tests-85_passing-success.svg)](tests/)
+[![TPR: 1.00 / FPR: 0.06](https://img.shields.io/badge/TPR-1.00_%2F_FPR_0.06-success.svg)](#backtest-corpus)
 
 Drop-in deterministic policy layer for MCP-using AI agents.
 
@@ -14,9 +14,13 @@ policies at the agent's tool-call boundary, and provides a
 backtest harness for measuring false-positive rate against
 legitimate traffic before deployment.
 
-> **v0.2.0 (2026-05-15):** 9 deterministic rule patterns across 122
-> rules, 61-case backtest corpus, TPR 1.00 / FPR 0.08 on the default
-> policy. See [CHANGELOG.md](CHANGELOG.md).
+> **v0.3.0 (2026-05-15):** 9 deterministic rule patterns across 122
+> rules, 78-case backtest corpus, TPR 1.00 / FPR 0.06 on the default
+> policy. Now with **Anthropic MCP SDK + LangChain adapters**,
+> **LLM-augmented synthesis fallback** for novel gap shapes, and a
+> [real-world case study](case_studies/echoleak-gpt4o/) walking the
+> GPT-4o EchoLeak finding from gap → policy → backtest. See
+> [CHANGELOG.md](CHANGELOG.md).
 
 This is the defensive companion to the [`purple-scaffold`](https://github.com/euanmcrosson-dotcom/purple-scaffold)
 research probes. Findings from those probes feed into policy
@@ -55,6 +59,15 @@ pip install mcp-guard
 ```
 
 (Python 3.11+. No runtime dependencies beyond the standard library.)
+
+Optional extras for the integrations you actually use:
+
+```bash
+pip install 'mcp-guard[anthropic-mcp]'   # for the Anthropic MCP SDK adapter
+pip install 'mcp-guard[langchain]'       # for the LangChain callback handler
+pip install 'mcp-guard[llm]'             # for synthesize_with_llm fallback
+pip install 'mcp-guard[all]'             # everything
+```
 
 ## Quickstart — Python API
 
@@ -124,8 +137,7 @@ naturally at the agent's tool-call boundary:
 ```python
 from mcp_guard import evaluate, GeneratedPolicy
 
-# Load policy at startup (YAML, dict, or programmatic)
-policy: GeneratedPolicy = ...
+policy: GeneratedPolicy = synthesize_default_policy()
 
 def on_tool_call_attempt(tool_name: str, args: dict, user_ctx: dict) -> bool:
     decision = evaluate(policy, tool_name, args, user_ctx)
@@ -141,10 +153,81 @@ def on_tool_call_attempt(tool_name: str, args: dict, user_ctx: dict) -> bool:
     return True
 ```
 
-For deployments behind an MCP server / agent framework, hook this
-into the framework's tool-call middleware. Example wiring for
-[`purple-scaffold`](https://github.com/euanmcrosson-dotcom/purple-scaffold)'s
-test harness is in that repo's `purple/agents_atlas_live.py`.
+### Anthropic MCP Python SDK
+
+```python
+from mcp.server import Server
+from mcp_guard import synthesize_default_policy
+from mcp_guard.integrations.anthropic_mcp import MCPGuard
+
+server = Server("my-app")
+guard = MCPGuard(policy=synthesize_default_policy())
+
+@server.call_tool()
+async def call_tool(name: str, arguments: dict):
+    # Raises GuardedToolDenied if the policy denies the call.
+    guard.check(name, arguments, user_context=current_user_context())
+    return await my_business_logic(name, arguments)
+```
+
+Or use the decorator form:
+
+```python
+@server.call_tool()
+@guard.wrap_handler(user_context_fn=current_user_context)
+async def call_tool(name: str, arguments: dict):
+    return await my_business_logic(name, arguments)
+```
+
+### LangChain
+
+```python
+from langchain.agents import AgentExecutor
+from mcp_guard import synthesize_default_policy
+from mcp_guard.integrations.langchain import make_callback_handler
+
+handler = make_callback_handler(
+    policy=synthesize_default_policy(),
+    user_context_fn=lambda: {"user": {"id": current_user.id,
+                                       "contacts": current_user.contacts}},
+)
+
+executor = AgentExecutor(
+    agent=agent, tools=tools,
+    callbacks=[handler],   # ← mcp-guard sits in the callback chain
+)
+```
+
+If the policy denies a tool call, the handler raises `GuardedToolDenied`
+inside `on_tool_start`, which LangChain surfaces as a tool failure;
+the agent's reasoning chain sees the deny reason and can adapt.
+
+### LLM-augmented synthesis for novel gaps
+
+The deterministic synthesiser covers 9 attack-class patterns. For
+gap shapes none of them recognise, `synthesize_with_llm` adds an
+LLM fallback path that calls Anthropic Claude with a schema-pinned
+prompt and validates the response against the full PolicyRule
+schema before emitting the rule:
+
+```python
+from mcp_guard import synthesize_with_llm
+
+# Deterministic patterns handle this → no LLM call.
+p1 = synthesize_with_llm("send_email to attacker@evil.com")
+
+# Novel gap → falls back to Claude (requires [llm] extra)
+p2 = synthesize_with_llm(
+    "agent invoked custom_tool_xyz with arg target_id pointing to a "
+    "privileged service account ID outside the user's tenant",
+    fallback=True,
+)
+```
+
+The validator rejects any response that doesn't match the
+PolicyRule schema (invalid operator, missing fields, etc.) and
+returns an empty policy on failure — better to miss a rule than
+ship a malformed one.
 
 ## What kinds of gaps does the synthesiser cover?
 
@@ -176,16 +259,18 @@ synthesis time).
 
 ## Backtest corpus
 
-`default_corpus()` returns a 61-case fixture corpus of (tool_name,
+`default_corpus()` returns a 78-case fixture corpus of (tool_name,
 args, user_context, expected_verdict) tuples covering every built-in
-pattern.
+pattern, including v0.3.0 additions (PowerShell, file://, gopher://,
+IPv4-mapped IPv6 loopback, Windows path traversal, JNDI, kubeconfig /
+gcloud / Azure CLI cache reads).
 
-**v0.2.0 default-policy metrics:**
+**v0.3.0 default-policy metrics:**
 
 ```
-Corpus size:       61
-TP (caught):       35 / 35 attacks    →  TPR 1.0000
-FP (over-blocks):   2 / 26 legit      →  FPR 0.0769
+Corpus size:       78
+TP (caught):       47 / 47 attacks    →  TPR 1.0000
+FP (over-blocks):   2 / 31 legit      →  FPR 0.0645
 ```
 
 The 2 remaining FPs are architecturally inherent to contact-allowlist

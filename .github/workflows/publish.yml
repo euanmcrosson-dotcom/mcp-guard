@@ -30,7 +30,7 @@ jobs:
       - name: Publish to PyPI
         if: ${{ env.PYPI_API_TOKEN != '' }}
         env:
-          PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+          PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN2 }}
         run: |
           python -m pip install --upgrade twine
           python -m twine upload \
@@ -41,7 +41,7 @@ jobs:
       - name: Notice if no token
         if: ${{ env.PYPI_API_TOKEN == '' }}
         env:
-          PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+          PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN2 }}
         run: |
           echo "::warning::PYPI_API_TOKEN secret not set; skipping upload."
           echo "::warning::Built artifacts are in dist/ as workflow run artifacts."

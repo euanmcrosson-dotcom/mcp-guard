@@ -4,6 +4,33 @@ All notable changes to mcp-guard are documented here. Format inspired
 by [Keep a Changelog](https://keepachangelog.com/); versioning follows
 [SemVer](https://semver.org/).
 
+## [0.5.2] — 2026-05-15
+
+### Changed
+
+- **PyPI distribution name renamed to `mcp-guardrails`.** v0.5.1 hit
+  PyPI's PEP-541-style similarity check — an unrelated dormant
+  project at https://pypi.org/project/mcpguard/ (different author,
+  0 stars, single commit 2026-02-27, never updated) squats the
+  adjacent namespace, and PyPI refuses to register `mcp-guard` as
+  too close. Users now `pip install mcp-guardrails`.
+- **The Python import name is unchanged.** `from mcp_guard import ...`
+  keeps working — the rename only affects the `pip install`
+  invocation. Same pattern as Pillow / PIL. The GitHub repo URL and
+  in-code references stay `mcp-guard` / `mcp_guard`.
+- "Guardrails" is arguably a better PyPI brand anyway — established
+  term in the AI safety vocabulary (Nemo Guardrails, Guardrails AI,
+  Llama Guard) — so the rename leans positive even setting aside the
+  PyPI constraint.
+
+### Migration
+
+```diff
+- pip install mcp-guard       # rejected by PyPI; never landed
++ pip install mcp-guardrails  # the actual install command
+  from mcp_guard import Issuer, evaluate, ...    # unchanged
+```
+
 ## [0.5.1] — 2026-05-15
 
 ### Fixed

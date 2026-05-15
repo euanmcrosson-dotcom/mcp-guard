@@ -6,8 +6,18 @@ requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "mcp-guard"
-version = "0.5.1"
+# PyPI distribution name. The GitHub repo + Python import name stay
+# `mcp-guard` / `mcp_guard`; only the PyPI-installable name differs.
+# Reason: an unrelated dormant project at https://pypi.org/project/mcpguard/
+# (different author, 0 stars, single commit 2026-02-27, never updated)
+# squats the adjacent namespace, and PyPI's PEP-541-style similarity
+# check refuses `mcp-guard` as too close to `mcpguard`. `mcp-guardrails`
+# is arguably a better name anyway — "guardrails" is the established
+# term in the AI-safety vocabulary (Nemo Guardrails, Guardrails AI,
+# Llama Guard, etc.). Users `pip install mcp-guardrails` and write
+# `from mcp_guard import ...` — Pillow/PIL pattern.
+name = "mcp-guardrails"
+version = "0.5.2"
 description = "Drop-in deterministic policy layer for MCP-using AI agents"
 readme = "README.md"
 requires-python = ">=3.11"

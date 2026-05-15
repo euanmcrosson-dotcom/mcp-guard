@@ -57,20 +57,27 @@ signal, deterministic policy as the unconditional gate.
 ## Install
 
 ```bash
-pip install mcp-guard
+pip install mcp-guardrails
 ```
 
 (Python 3.11+. No runtime dependencies beyond the standard library.)
 
+> **Note on the name.** The PyPI distribution is `mcp-guardrails`
+> (an unrelated dormant project squats `mcpguard` on PyPI, and
+> the similarity check refuses `mcp-guard`). The Python import name
+> stays `mcp_guard` so existing code continues to work. Same
+> Pillow / PIL pattern. The GitHub repo, the in-code references,
+> and the project identity stay `mcp-guard`.
+
 Optional extras for the integrations you actually use:
 
 ```bash
-pip install 'mcp-guard[anthropic-mcp]'   # for the Anthropic MCP SDK adapter
-pip install 'mcp-guard[langchain]'       # for the LangChain callback handler
-pip install 'mcp-guard[llamaindex]'      # for the LlamaIndex callback handler / wrap_tool
-pip install 'mcp-guard[crewai]'          # for the CrewAI wrap_tool
-pip install 'mcp-guard[llm]'             # for synthesize_with_llm fallback
-pip install 'mcp-guard[all]'             # everything
+pip install 'mcp-guardrails[anthropic-mcp]'   # for the Anthropic MCP SDK adapter
+pip install 'mcp-guardrails[langchain]'       # for the LangChain callback handler
+pip install 'mcp-guardrails[llamaindex]'      # for the LlamaIndex callback handler / wrap_tool
+pip install 'mcp-guardrails[crewai]'          # for the CrewAI wrap_tool
+pip install 'mcp-guardrails[llm]'             # for synthesize_with_llm fallback
+pip install 'mcp-guardrails[all]'             # everything
 ```
 
 ## Quickstart — Python API

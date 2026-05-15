@@ -24,7 +24,20 @@ from dataclasses import dataclass, field
 from typing import Any, Literal
 
 
-Op = Literal["not_in", "in", "equals", "not_equals", "matches"]
+Op = Literal[
+    "not_in",
+    "in",
+    "equals",
+    "not_equals",
+    "matches",
+    "not_matches",
+    "starts_with",
+    "not_starts_with",
+    "contains",
+    "not_contains",
+    "length_gt",
+    "length_lt",
+]
 
 
 @dataclass(frozen=True)
@@ -154,6 +167,36 @@ def _check(cond: Condition, args: dict[str, Any], ctx: dict[str, Any]) -> bool:
         if not isinstance(left, str) or not isinstance(right, str):
             return False
         return re.search(right, left) is not None
+    if cond.op == "not_matches":
+        import re
+
+        if not isinstance(left, str) or not isinstance(right, str):
+            return False
+        return re.search(right, left) is None
+    if cond.op == "starts_with":
+        if not isinstance(left, str) or not isinstance(right, str):
+            return False
+        return left.startswith(right)
+    if cond.op == "not_starts_with":
+        if not isinstance(left, str) or not isinstance(right, str):
+            return False
+        return not left.startswith(right)
+    if cond.op == "contains":
+        if not isinstance(left, str) or not isinstance(right, str):
+            return False
+        return right in left
+    if cond.op == "not_contains":
+        if not isinstance(left, str) or not isinstance(right, str):
+            return False
+        return right not in left
+    if cond.op == "length_gt":
+        if not isinstance(left, (str, list, tuple, dict)) or not isinstance(right, int):
+            return False
+        return len(left) > right
+    if cond.op == "length_lt":
+        if not isinstance(left, (str, list, tuple, dict)) or not isinstance(right, int):
+            return False
+        return len(left) < right
     raise ValueError(f"Unknown op: {cond.op!r}")
 
 

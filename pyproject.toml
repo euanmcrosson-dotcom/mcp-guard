@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mcp-guard"
-version = "0.1.0"
+version = "0.2.0"
 description = "Drop-in deterministic policy layer for MCP-using AI agents"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -22,7 +22,7 @@ keywords = [
     "agent-security",
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Information Technology",
     "License :: OSI Approved :: MIT License",

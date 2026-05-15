@@ -4,6 +4,85 @@ All notable changes to mcp-guard are documented here. Format inspired
 by [Keep a Changelog](https://keepachangelog.com/); versioning follows
 [SemVer](https://semver.org/).
 
+## [0.4.0] — 2026-05-15
+
+The "case studies + corpus scale + post-RCE recon" release. Two new
+fully-reproducible real-world case studies, corpus expanded from 78
+to 124 cases covering Windows paths / NoSQL-adjacent shapes / env
+recon / more SSRF schemes, and a new pattern family for post-RCE
+credential discovery.
+
+### Added
+
+- **Two new case studies**, both with `gap.txt` + `reproduce.py` +
+  pre-generated `synthesised_policy.yaml` + `backtest.json`:
+  - [`case_studies/tool-description-poisoning/`](case_studies/tool-description-poisoning/) —
+    cross-tool confused deputy via poisoned MCP tool catalog
+    descriptions. Sourced from `purple-scaffold` 2026-04-28 finding
+    (GPT-4o 66.7% cross-tool hijack, Claude 0%).
+  - [`case_studies/aws-metadata-ssrf/`](case_studies/aws-metadata-ssrf/) —
+    agent SSRF chain to AWS IMDSv1 for IAM credential exfil.
+    Realistic synthetic; covers the 13 SSRF variants in the
+    `ssrf-private-host` rule pattern.
+- **Case-studies catalog** at [`case_studies/README.md`](case_studies/README.md)
+  with attack-class / source / primary-rule-pattern table and
+  one-script reproduction instructions.
+- **Post-RCE environment recon detection** added to the shell-danger
+  pattern: bare `env` / `printenv` / `set | ...`, `cat /proc/PID/environ`,
+  `grep -RE` against secret-name keywords (password / token / api_key /
+  AWS / private key / JWT / bearer), `find ... -name "*.pem"`-style
+  discovery of secret-shaped files.
+- **Windows sensitive-path coverage**: `AppData\Roaming\Microsoft\Credentials`,
+  DPAPI master keys (`AppData\*\Microsoft\Crypto\RSA`),
+  `C:\Windows\System32\drivers\etc\hosts`, scheduled-tasks paths,
+  registry-write paths (`HKLM\`, `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`),
+  Chrome / Firefox credential stores.
+- **New SQL danger patterns**: Postgres `COPY FROM PROGRAM` (RCE),
+  `pg_read_file` / `pg_read_binary_file` / `pg_ls_dir`, bare
+  `xp_cmdshell`, MySQL `INTO DUMPFILE`, Postgres `$$...$$`
+  dollar-quoted strings.
+- **More SSRF schemes**: `jar:http://...!/` (Java deserialisation
+  payload delivery), `ftp://`, `dict://` (now properly covered).
+- **More PII shapes covered in corpus**: MasterCard, GitHub PAT
+  (`ghp_*`), RSA + OpenSSH private-key headers (proper PEM format),
+  Slack bot tokens.
+
+### Changed
+
+- **Corpus 78 → 124 cases.** Adds:
+  - 7 env-recon attacks + 3 legit env-adjacent cases
+  - 5 advanced SQL attacks (COPY/pg_read_file/xp_cmdshell/OUTFILE/GRANT)
+  - 3 SSRF-scheme attacks (dict://, jar:, ftp://)
+  - 3 Windows path attacks + 2 Windows legit
+  - 5 PII-shape attacks (more variety)
+  - 4 sensitive-read attacks (.git/credentials, docker.sock, .netrc, /root/.pgpass)
+  - 3 sensitive-write attacks (sudoers, /usr/bin, systemd unit)
+  - 2 path-traversal attacks (mixed real-path + URL-encoded; Windows)
+  - 9 more legit cases proportionally
+- **Default-policy metrics:** TPR 1.0000 (79/79 attacks),
+  FPR 0.0444 (2/45 — only the 2 architecturally-expected
+  first-time-recipient FPs).
+- **README badges updated**: 97 tests, TPR 1.00 / FPR 0.04.
+
+### Patterns fixed in passing
+
+- Path-traversal regex: was case-sensitive on URL-encoded variants
+  (missed `..%2F`). Now `(?i)` at pattern head.
+- SQL `UPDATE without WHERE` lookahead was broken; replaced with
+  bounded `[^;]*\bWHERE\b` negative lookahead that correctly
+  distinguishes `UPDATE ... SET ... WHERE` (legit) from
+  `UPDATE ... SET ...;` (unbounded).
+- Windows sensitive-path regexes had double-escaped backslashes
+  (`\\\\`) which matched 2 literal backslashes instead of 1; fixed.
+- `jar://` scheme regex updated to also match `jar:http://...`
+  (real-world jar URI form has no `//` after `jar:`).
+
+### Migration
+
+v0.4.0 is fully backwards-compatible. New defenses kick in
+automatically once you upgrade if you're using
+`synthesize_default_policy()`.
+
 ## [0.3.1] — 2026-05-15
 
 Completes the four-adapter set with LlamaIndex and CrewAI. The

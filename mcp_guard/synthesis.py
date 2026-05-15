@@ -59,7 +59,8 @@ class SynthesisInput:
 _PRIVATE_HOST_PATTERN = (
     r"(?i)"
     r"(?:"
-    r"^(?:file|gopher|dict|ftp|jar|ldap|ldaps)://"  # dangerous URL schemes (file-read, SSRF chains)
+    r"^(?:file|gopher|dict|ftp|ldap|ldaps)://"  # dangerous URL schemes (file-read, SSRF chains)
+    r"|^jar:"                                    # jar:http://...!/ (no // after jar:)
     r"|(?:^|//)("
     r"127(?:\.\d{1,3}){3}"            # 127.0.0.0/8
     r"|10(?:\.\d{1,3}){3}"            # 10.0.0.0/8
@@ -83,14 +84,30 @@ _SENSITIVE_READ_PATTERN = (
     r"|credentials|kubeconfig|\.kube/config|\.gnupg/|\.docker/config"
     r"|/proc/self/environ|\.netrc|\.pgpass|/root/"
     r"|\.azure/(?:credentials|accessTokens)|\.config/gcloud/"
-    r"|AWS SSO/cache/|web_identity_token_file)"
+    r"|AWS SSO/cache/|web_identity_token_file"
+    r"|/var/run/docker\.sock|/var/run/secrets/"  # runtime sockets / secret mounts
+    r"|\.git/credentials"                           # git credential helper
+    # Windows-specific sensitive paths (single \ in regex r-string matches one literal \)
+    r"|AppData\\Roaming\\Microsoft\\Credentials"
+    r"|AppData\\(?:Local|Roaming)\\Microsoft\\Crypto\\RSA"
+    r"|AppData\\(?:Local|Roaming)\\Microsoft\\Vault"
+    r"|AppData\\Local\\Google\\Chrome\\User Data\\.+\\(?:Login Data|Cookies)"
+    r"|AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\.+\\(?:logins\.json|key[34]\.db)"
+    r"|%APPDATA%\\Microsoft\\(?:Credentials|Crypto|Vault)"
+    r")"
 )
 
 _SENSITIVE_WRITE_PATTERN = (
     r"(?:\.ssh/(?:authorized_keys|config)|\.bashrc|\.zshrc|\.profile"
     r"|\.bash_profile|\.aws/credentials|/etc/(?!localtime)|/usr/(?:bin|sbin|lib)/"
     r"|/bin/|/sbin/|crontab|/var/spool/cron/|systemd/system/"
-    r"|\.git/config|\.git/hooks/|/root/|\.env(?:\.|$))"
+    r"|\.git/config|\.git/hooks/|/root/|\.env(?:\.|$)"
+    # Windows-specific sensitive write targets (single \ in regex r-string matches one literal \)
+    r"|C:\\Windows\\System32\\(?:drivers\\etc\\hosts|config\\)"
+    r"|C:\\Windows\\Tasks\\"
+    r"|C:\\Windows\\System32\\Tasks\\"
+    r"|HKLM\\|HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run"
+    r")"
 )
 
 _PATH_TRAVERSAL_PATTERN = (
@@ -124,6 +141,16 @@ _SHELL_DANGER_PATTERN = (
     r"|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs"            # UAC bypass attempt
     # Java/log4shell-style JNDI lookup (any context)
     r"|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://"
+    # Environment / process inspection — common post-RCE credential recon
+    r"|\benv\s*(?:\||;|$|>)"                          # bare env dump (not env VAR=val)
+    r"|\bprintenv\b"                                   # printenv alone
+    r"|\bset\s*\|"                                     # set piped
+    r"|\bcat\s+/proc/\d+/environ"                      # direct /proc/PID/environ read
+    r"|\bgrep\s+-[a-zEFRPHhilrInw]*?[Ei][a-zEFRPHhilrInw]*\s+['\"]?"
+    r"(?:password|passwd|secret|api[_-]?key|token|access[_-]?key|aws_secret|"
+    r"private[_-]?key|begin\s+rsa|begin\s+openssh|jwt|bearer)"
+    # Discovery of secret-shaped files
+    r"|\bfind\s+[^|;]{1,200}-name\s+['\"]?\*\.(pem|key|p12|pfx|jks|env|kdbx)"
     r")"
 )
 
@@ -141,8 +168,15 @@ _SQL_DANGER_PATTERN = (
     r"|--\s*$|/\*.*?\*/"                                  # SQL comments
     r"|;\s*(?:DROP|DELETE|UPDATE|INSERT|EXEC)\b"          # stacked queries
     r"|\bEXEC(?:UTE)?\s*\(?\s*(?:xp_|sp_)"                # MSSQL command exec
+    r"|\bxp_cmdshell\b"                                   # MSSQL bare cmdshell
     r"|\bLOAD_FILE\s*\("                                  # MySQL file read
     r"|\bINTO\s+OUTFILE\b"                                # MySQL file write
+    r"|\bINTO\s+DUMPFILE\b"                               # MySQL alt file write
+    r"|\bCOPY\s+\S+\s+FROM\s+PROGRAM\b"                   # Postgres RCE via COPY
+    r"|\bpg_read_file\s*\("                               # Postgres file read
+    r"|\bpg_read_binary_file\s*\("                        # Postgres binary file read
+    r"|\bpg_ls_dir\s*\("                                  # Postgres directory listing
+    r"|\$\$.+\$\$"                                        # Postgres dollar-quoted strings (often used for injection)
     r")"
 )
 

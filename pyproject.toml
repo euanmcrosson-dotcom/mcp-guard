@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mcp-guard"
-version = "0.3.1"
+version = "0.4.0"
 description = "Drop-in deterministic policy layer for MCP-using AI agents"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -75,3 +75,6 @@ mcp-guard = "mcp_guard.cli:main"
 
 [tool.setuptools]
 packages = ["mcp_guard", "mcp_guard.integrations"]
+
+[tool.setuptools.exclude-package-data]
+"*" = ["case_studies/*", "tests/*"]

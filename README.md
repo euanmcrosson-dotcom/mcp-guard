@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python: 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](pyproject.toml)
 [![Tests: 97 passing](https://img.shields.io/badge/tests-97_passing-success.svg)](tests/)
-[![TPR: 1.00 / FPR: 0.06](https://img.shields.io/badge/TPR-1.00_%2F_FPR_0.06-success.svg)](#backtest-corpus)
+[![TPR: 1.00 / FPR: 0.04](https://img.shields.io/badge/TPR-1.00_%2F_FPR_0.04-success.svg)](#backtest-corpus)
 
 Drop-in deterministic policy layer for MCP-using AI agents.
 
@@ -14,13 +14,15 @@ policies at the agent's tool-call boundary, and provides a
 backtest harness for measuring false-positive rate against
 legitimate traffic before deployment.
 
-> **v0.3.1 (2026-05-15):** 9 deterministic rule patterns across 122
-> rules, 78-case backtest corpus, TPR 1.00 / FPR 0.06. **Four
-> framework adapters shipped**: Anthropic MCP SDK, LangChain,
-> LlamaIndex, CrewAI. **LLM-augmented synthesis fallback** for novel
-> gap shapes. Reproducible
-> [real-world case study](case_studies/echoleak-gpt4o/) on the
-> GPT-4o EchoLeak finding. See [CHANGELOG.md](CHANGELOG.md).
+> **v0.4.0 (2026-05-15):** 9 deterministic rule patterns across 122
+> rules, **124-case backtest corpus**, TPR 1.00 / FPR 0.04. Four
+> framework adapters: Anthropic MCP SDK, LangChain, LlamaIndex,
+> CrewAI. LLM-augmented synthesis fallback for novel gap shapes.
+> **Three reproducible real-world [case studies](case_studies/)**
+> (EchoLeak indirect injection, MCP tool-description poisoning,
+> AWS IMDS SSRF chain). New: post-RCE env-recon detection,
+> Windows-path coverage, Postgres COPY/pg_read_file SQL patterns.
+> See [CHANGELOG.md](CHANGELOG.md).
 
 This is the defensive companion to the [`purple-scaffold`](https://github.com/euanmcrosson-dotcom/purple-scaffold)
 research probes. Findings from those probes feed into policy
@@ -309,18 +311,21 @@ synthesis time).
 
 ## Backtest corpus
 
-`default_corpus()` returns a 78-case fixture corpus of (tool_name,
+`default_corpus()` returns a **124-case** fixture corpus of (tool_name,
 args, user_context, expected_verdict) tuples covering every built-in
-pattern, including v0.3.0 additions (PowerShell, file://, gopher://,
-IPv4-mapped IPv6 loopback, Windows path traversal, JNDI, kubeconfig /
-gcloud / Azure CLI cache reads).
+pattern. v0.4.0 expanded coverage to: post-RCE env recon (env dump,
+printenv, secret-keyword grep, secret-extension find), Windows
+sensitive paths (Credentials manager, DPAPI keys, hosts file,
+scheduled tasks, registry Run keys), Postgres COPY/pg_read_file
+RCE, MySQL INTO DUMPFILE, MSSQL xp_cmdshell, jar://ftp://dict://
+SSRF schemes, RSA/OpenSSH PEM headers, GitHub PATs, Slack tokens.
 
-**v0.3.0 default-policy metrics:**
+**v0.4.0 default-policy metrics:**
 
 ```
-Corpus size:       78
-TP (caught):       47 / 47 attacks    →  TPR 1.0000
-FP (over-blocks):   2 / 31 legit      →  FPR 0.0645
+Corpus size:      124
+TP (caught):       79 / 79 attacks    →  TPR 1.0000
+FP (over-blocks):   2 / 45 legit      →  FPR 0.0444
 ```
 
 The 2 remaining FPs are architecturally inherent to contact-allowlist

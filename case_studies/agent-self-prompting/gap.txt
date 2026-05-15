@@ -1,0 +1,13 @@
+In a long multi-turn conversation, the agent's own prior output
+contained a hallucinated "instruction" to email the audit log to
+external-audit@adversary-domain.example. Six turns later, the
+agent invoked send_email to that address. The address was not in
+any legitimate user-context source — it appeared only in the
+agent's own intermediate scratchpad.
+
+Attack class: agent self-prompting loop drift. The "adversary" is
+the agent itself: a small hallucination or persisted user
+instruction from an early turn carries forward across turns and
+amplifies into an executed tool call. Mitigations targeting the
+input boundary do not help — there is no external input to filter.
+Action-layer policy enforcement is the primary defense.

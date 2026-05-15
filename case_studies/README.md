@@ -12,6 +12,9 @@ network calls, no API keys.
 | 1 | [echoleak-gpt4o](echoleak-gpt4o/) | Indirect prompt injection via document content (email exfil) | email contact allowlist + PII exfil | [`purple-scaffold` 2026-04-28](https://github.com/euanmcrosson-dotcom/purple-scaffold) — GPT-4o 66.7% silent compliance |
 | 2 | [tool-description-poisoning](tool-description-poisoning/) | Cross-tool confused deputy via MCP tool catalog metadata | email contact allowlist | [`purple-scaffold` 2026-04-28](https://github.com/euanmcrosson-dotcom/purple-scaffold) — GPT-4o 66.7% cross-tool hijack |
 | 3 | [aws-metadata-ssrf](aws-metadata-ssrf/) | SSRF chain to AWS IMDS for credential exfil | ssrf-private-host | Realistic synthetic (IMDSv1 pattern) |
+| 4 | [log4shell-mcp-logging](log4shell-mcp-logging/) | JNDI lookup injection via MCP server log formatter | shell-danger (JNDI sub-rule) | CVE-2021-44228 class applied to MCP tier |
+| 5 | [rag-context-poisoning](rag-context-poisoning/) | Indirect prompt injection via RAG corpus | email contact allowlist + PII exfil | Realistic synthetic (parent: OWASP LLM01) |
+| 6 | [agent-self-prompting](agent-self-prompting/) | Agent self-loop drift accumulates injected content | email contact allowlist | `purple-scaffold` 2026-05-02 multi-turn drift |
 
 ## Reproduce all case studies
 

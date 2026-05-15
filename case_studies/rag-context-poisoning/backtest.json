@@ -1,0 +1,40 @@
+{
+  "attack_class": "indirect prompt injection via RAG corpus poisoning",
+  "primary_rule_pattern": "email contact allowlist + PII exfil",
+  "injection_vector": "retrieved passages from vector store",
+  "parent_classes": [
+    "OWASP LLM01 (Prompt Injection)",
+    "OWASP LLM03 (Training Data Poisoning) \u2014 adjacent"
+  ],
+  "real_world_corpus_sources": [
+    "User-generated content (wikis, tickets, reviews)",
+    "Crawled web content (anyone who ranks for the crawler keyword)",
+    "Compromised ETL pipelines into the vector DB",
+    "Insider authors of 'internal docs'"
+  ],
+  "targeted_policy": {
+    "rule_count": 21,
+    "tp": 13,
+    "fp": 2,
+    "tn": 43,
+    "fn": 66,
+    "tpr": 0.1646,
+    "fpr": 0.0444
+  },
+  "default_policy": {
+    "rule_count": 122,
+    "tp": 79,
+    "fp": 2,
+    "tn": 43,
+    "fn": 0,
+    "tpr": 1.0,
+    "fpr": 0.0444
+  },
+  "corpus_size": 124,
+  "defense_in_depth_recommendations": [
+    "Restrict corpus write access; don't index untrusted UGC",
+    "Tag retrieved passages with provenance; weight by trust",
+    "Run injection-pattern regex on passages at indexing time",
+    "Run mcp-recon over the retrieval tool to confirm its authority surface"
+  ]
+}

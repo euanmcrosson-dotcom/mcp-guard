@@ -141,6 +141,14 @@ _SHELL_DANGER_PATTERN = (
     r"|\bStart-Process\s+[^;]{1,200}\s+-Verb\s+RunAs"            # UAC bypass attempt
     # Java/log4shell-style JNDI lookup (any context)
     r"|\$\{jndi:(?:ldap|ldaps|rmi|dns|iiop)://"
+    # Reverse-shell primitives
+    r"|\bnc\s+-[eEcC]\s+/bin/(?:sh|bash|zsh|ksh|ash|dash)"
+    r"|\bnetcat\s+-[eEcC]\s+/bin/(?:sh|bash|zsh|ksh|ash|dash)"
+    r"|/dev/tcp/[^/\s]+/\d+"                            # bash /dev/tcp reverse shell (no \b — / is non-word)
+    # Sensitive-file read via shell (cat / less / more / head / tail / xxd / hexdump / od)
+    r"|\b(?:cat|less|more|head|tail|xxd|hexdump|od|strings)\s+[^|;&]{0,200}"
+    r"(?:\.ssh/|id_rsa|id_ed25519|\.aws/credentials|kubeconfig|"
+    r"/etc/shadow|/etc/passwd|\.netrc|\.pgpass|\.gnupg/)"
     # Environment / process inspection — common post-RCE credential recon
     r"|\benv\s*(?:\||;|$|>)"                          # bare env dump (not env VAR=val)
     r"|\bprintenv\b"                                   # printenv alone

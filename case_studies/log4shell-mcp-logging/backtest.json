@@ -1,0 +1,30 @@
+{
+  "attack_class": "Log4Shell-class JNDI lookup injection (CVE-2021-44228 family)",
+  "primary_rule_pattern": "shell-danger (JNDI sub-rule)",
+  "carrier": "agent passes user-controlled string to a tool whose downstream logger / formatter does reference resolution",
+  "real_world_anchors": [
+    "CVE-2021-44228 \u2014 original Log4Shell",
+    "CVE-2021-45046 \u2014 Log4Shell variant",
+    "OWASP LLM01 (Prompt Injection) \u2014 the parent class for indirect injection in agent tool args"
+  ],
+  "targeted_policy": {
+    "rule_count": 40,
+    "tp": 16,
+    "fp": 0,
+    "tn": 45,
+    "fn": 63,
+    "tpr": 0.2025,
+    "fpr": 0.0
+  },
+  "default_policy": {
+    "rule_count": 122,
+    "tp": 79,
+    "fp": 2,
+    "tn": 43,
+    "fn": 0,
+    "tpr": 1.0,
+    "fpr": 0.0444
+  },
+  "corpus_size": 124,
+  "production_recommendation": "Add a per-tool JNDI rule for any string-accepting tool whose backend / logger chain is not fully under your control. The default policy catches JNDI strings in shell-tool args; extending it to non-shell tools is a 5-line PolicyRule append."
+}

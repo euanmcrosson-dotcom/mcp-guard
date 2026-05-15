@@ -4,6 +4,92 @@ All notable changes to mcp-guard are documented here. Format inspired
 by [Keep a Changelog](https://keepachangelog.com/); versioning follows
 [SemVer](https://semver.org/).
 
+## [0.5.0] — 2026-05-15
+
+The "300+ corpus, 6 case studies, real-API LLM validation" release.
+Doubled the case study count, more than doubled corpus coverage, and
+added end-to-end validation of the LLM fallback path against a live
+Anthropic model.
+
+### Added
+
+- **3 new case studies** (now 6 total):
+  - [`case_studies/log4shell-mcp-logging/`](case_studies/log4shell-mcp-logging/) —
+    Log4Shell-class JNDI injection via the MCP server's tool-call
+    log formatter. Maps to the shell-danger pattern's JNDI sub-rule.
+    Documents the per-tool extension pattern for non-shell tools
+    that may have vulnerable downstream loggers.
+  - [`case_studies/rag-context-poisoning/`](case_studies/rag-context-poisoning/) —
+    indirect prompt injection via the RAG retrieval corpus. Covers
+    real-world poisoning sources (UGC, crawled content, compromised
+    ETL pipelines, insider corpus authors) and composition with
+    corpus-side filters at indexing time.
+  - [`case_studies/agent-self-prompting/`](case_studies/agent-self-prompting/) —
+    agent self-loop drift where the adversary is the agent itself.
+    Sourced from `purple-scaffold` 2026-05-02 multi-turn drift
+    findings. Makes the action-layer-defense argument explicit:
+    input-boundary defenses can't help when the generator of the
+    bad string is the agent.
+- **Real-API LLM fallback test** at `tests/test_llm_real.py`. Opt-in,
+  gated on `ANTHROPIC_API_KEY` env var and `anthropic` SDK install.
+  Validates the full pipeline against a live Claude. 2 tests:
+  novel-gap-emits-valid-rule and vague-gap-handled-gracefully.
+  ~$0.01–$0.02 per full run; skipped by default in CI.
+- **New reverse-shell / sensitive-file-via-shell sub-patterns** in
+  the shell-danger pattern:
+  - `nc -e /bin/sh` and `netcat -e /bin/sh` (canonical reverse shells)
+  - `/dev/tcp/host/port` (bash reverse shell)
+  - `cat|less|more|head|tail|xxd|hexdump|od|strings <sensitive path>`
+    (reading SSH keys / AWS creds / kubeconfig / etc. via shell tools)
+
+### Changed
+
+- **Corpus 124 → 304 cases.** The expansion is mostly *legit traffic*
+  to grow the FPR denominator honestly:
+  - 12 more in-contact emails (scheduling / reminders / replies)
+  - 12 more legit SQL (analytics / monitoring / cache cleanup / CTE)
+  - 18 more legit file ops (project sources, tests, docs, build outputs)
+  - 20 more legit shell (git / npm / kubectl / docker / terraform /
+    helm / mypy / ruff / tree / stat / etc.)
+  - 12 more legit network (cloud APIs, public DNS, SMTP)
+  - 11 more legit HTTP fetches (docs, registries, RFCs)
+  - 10 more legit misc tools (search / ticket / calendar / metrics /
+    invoice / translate / summarize)
+  - 5 more legit emails edge cases
+  - 5 more legit nested-path file reads
+  - 50 more "final" legit cases across all surfaces
+  Plus 18 attack additions (subdomain spoofing email, more shell
+  variants including bash reverse shell, UNION-based SQL exfil,
+  K8s service account token read, Chrome / Firefox credential
+  store reads, GitLab / Slack token exfil, AWS Fargate credential
+  endpoint).
+- **Default-policy metrics:** TPR 1.0000 (106/106 attacks),
+  **FPR 0.0101** (2/198 — the architectural floor of 2 first-time-
+  recipient FPs over a much larger legit corpus).
+- **Case-studies catalog** updated with rows 4-6.
+
+### Validation
+
+The mocked LLM tests (`tests/test_extensions.py`) and the real-API
+tests (`tests/test_llm_real.py`) together cover the LLM fallback
+end-to-end:
+
+| Path | Mock | Real-API |
+|---|---|---|
+| Deterministic hit (no LLM call) | ✓ | n/a |
+| Valid JSON response | ✓ | ✓ (`test_real_api_synthesises_rule_for_novel_gap`) |
+| Invalid JSON → empty | ✓ | n/a (rejected before reaching real API in mock) |
+| Markdown-fenced response | ✓ | n/a |
+| Empty `{}` response | ✓ | ✓ (`test_real_api_returns_empty_on_too_vague_gap`) |
+| Hallucinated operator | ✓ | (model unlikely to do this with the schema prompt) |
+| Network failure | ✓ | n/a |
+
+### Migration
+
+v0.5.0 is fully backwards-compatible. The new shell-danger
+sub-patterns kick in automatically for users on
+`synthesize_default_policy()`.
+
 ## [0.4.0] — 2026-05-15
 
 The "case studies + corpus scale + post-RCE recon" release. Two new

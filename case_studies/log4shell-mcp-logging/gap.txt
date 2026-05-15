@@ -1,0 +1,11 @@
+MCP server's tool-call logger expanded a ${jndi:ldap://...}
+substring in the user_id argument. The substring came from an
+attacker-controlled ticket field and propagated through the agent's
+lookup_user invocation. Server-side logger triggered remote code
+execution (Log4Shell pattern, CVE-2021-44228 class).
+
+Attack class: command injection / JNDI lookup. Affects any MCP
+server whose tool-call logger (or any downstream log forwarder /
+JSON parser / templating library) performs reference resolution
+against unsanitised input. The agent itself is not the
+vulnerability — it's the carrier.

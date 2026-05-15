@@ -3,8 +3,9 @@
 [![PyPI](https://img.shields.io/badge/pypi-mcp--guard-blue.svg)](https://pypi.org/project/mcp-guard/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python: 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](pyproject.toml)
-[![Tests: 97 passing](https://img.shields.io/badge/tests-97_passing-success.svg)](tests/)
-[![TPR: 1.00 / FPR: 0.04](https://img.shields.io/badge/TPR-1.00_%2F_FPR_0.04-success.svg)](#backtest-corpus)
+[![Tests: 97 passing (+2 opt-in)](https://img.shields.io/badge/tests-97_passing-success.svg)](tests/)
+[![TPR: 1.00 / FPR: 0.01](https://img.shields.io/badge/TPR-1.00_%2F_FPR_0.01-success.svg)](#backtest-corpus)
+[![Case studies: 6](https://img.shields.io/badge/case_studies-6-9cf.svg)](case_studies/)
 
 Drop-in deterministic policy layer for MCP-using AI agents.
 
@@ -14,15 +15,14 @@ policies at the agent's tool-call boundary, and provides a
 backtest harness for measuring false-positive rate against
 legitimate traffic before deployment.
 
-> **v0.4.0 (2026-05-15):** 9 deterministic rule patterns across 122
-> rules, **124-case backtest corpus**, TPR 1.00 / FPR 0.04. Four
+> **v0.5.0 (2026-05-15):** 9 deterministic rule patterns across 122
+> rules, **304-case backtest corpus**, TPR 1.00 / FPR 0.01. Four
 > framework adapters: Anthropic MCP SDK, LangChain, LlamaIndex,
-> CrewAI. LLM-augmented synthesis fallback for novel gap shapes.
-> **Three reproducible real-world [case studies](case_studies/)**
-> (EchoLeak indirect injection, MCP tool-description poisoning,
-> AWS IMDS SSRF chain). New: post-RCE env-recon detection,
-> Windows-path coverage, Postgres COPY/pg_read_file SQL patterns.
-> See [CHANGELOG.md](CHANGELOG.md).
+> CrewAI. LLM-augmented synthesis fallback (mock + real-API
+> validated). **Six reproducible real-world [case studies](case_studies/)**:
+> EchoLeak indirect injection, MCP tool-description poisoning,
+> AWS IMDS SSRF, Log4Shell-class MCP logging, RAG context poisoning,
+> agent self-prompting loops. See [CHANGELOG.md](CHANGELOG.md).
 
 This is the defensive companion to the [`purple-scaffold`](https://github.com/euanmcrosson-dotcom/purple-scaffold)
 research probes. Findings from those probes feed into policy
@@ -320,13 +320,17 @@ scheduled tasks, registry Run keys), Postgres COPY/pg_read_file
 RCE, MySQL INTO DUMPFILE, MSSQL xp_cmdshell, jar://ftp://dict://
 SSRF schemes, RSA/OpenSSH PEM headers, GitHub PATs, Slack tokens.
 
-**v0.4.0 default-policy metrics:**
+**v0.5.0 default-policy metrics:**
 
 ```
-Corpus size:      124
-TP (caught):       79 / 79 attacks    →  TPR 1.0000
-FP (over-blocks):   2 / 45 legit      →  FPR 0.0444
+Corpus size:      304
+TP (caught):      106 / 106 attacks   →  TPR 1.0000
+FP (over-blocks):   2 / 198 legit     →  FPR 0.0101
 ```
+
+The FPR drops as the legit denominator grows; the 2 FPs are still
+the same architectural floor (legitimate first-time recipients
+that contact-allowlist policies block by definition).
 
 The 2 remaining FPs are architecturally inherent to contact-allowlist
 policies (legitimate first-time recipients). They are kept in the

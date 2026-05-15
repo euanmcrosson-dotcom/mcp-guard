@@ -1,14 +1,20 @@
 [build-system]
-requires = ["setuptools>=68"]
+# setuptools 77+ is required for PEP 639 SPDX license strings —
+# earlier versions silently fall back to the deprecated TOML-table
+# license form which PyPI's strict upload validator now rejects.
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "mcp-guard"
-version = "0.5.0"
+version = "0.5.1"
 description = "Drop-in deterministic policy layer for MCP-using AI agents"
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "MIT" }
+# PEP 639: SPDX expression as a string. The deprecated `{ text = "MIT" }`
+# table form is rejected by PyPI's strict metadata validator on
+# upload, even though setuptools only warns about it locally.
+license = "MIT"
 authors = [
     { name = "Euan Crosson", email = "euanmcrosson@gmail.com" },
 ]
@@ -25,7 +31,9 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Information Technology",
-    "License :: OSI Approved :: MIT License",
+    # License classifier removed in v0.5.1 — PEP 639 says the license
+    # field above is authoritative; carrying both is now a PyPI upload
+    # error rather than just a deprecation warning.
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",

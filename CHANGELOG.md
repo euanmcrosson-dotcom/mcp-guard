@@ -4,6 +4,28 @@ All notable changes to mcp-guard are documented here. Format inspired
 by [Keep a Changelog](https://keepachangelog.com/); versioning follows
 [SemVer](https://semver.org/).
 
+## [0.5.1] — 2026-05-15
+
+### Fixed
+
+- **PyPI upload metadata.** v0.5.0's `pyproject.toml` declared
+  `license = { text = "MIT" }` (a TOML table) and a `License :: OSI
+  Approved :: MIT License` classifier. Both forms are deprecated by
+  PEP 639 and PyPI's strict upload validator now returns
+  `HTTP 400 Bad Request` for them — even though setuptools only
+  warns about the deprecation locally. The upload that triggered
+  this fix:
+  https://github.com/euanmcrosson-dotcom/mcp-guard/actions/runs/25931946091
+- Switched to `license = "MIT"` (SPDX expression as string) and
+  removed the redundant classifier.
+- Bumped `[build-system]` requires to `setuptools>=77` (the version
+  that adds PEP 639 support).
+
+No Python API changes; v0.5.1 is byte-equivalent at the import
+surface. Version bump is necessary because PyPI consumes version
+numbers on failed-upload attempts: even though `0.5.0` was rejected,
+the version is no longer reusable.
+
 ## [0.5.0] — 2026-05-15
 
 The "300+ corpus, 6 case studies, real-API LLM validation" release.

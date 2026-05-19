@@ -146,7 +146,22 @@ def _cmd_backtest(args: argparse.Namespace) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
+    # Import here so the package version is read at runtime rather than baked
+    # in at PyInstaller-bundle time; that matches `<bin> --version` semantics
+    # downstream tools like Capframe expect.
+    try:
+        from importlib.metadata import version as _pkg_version
+        _version = _pkg_version("mcp-guardrails")
+    except Exception:
+        _version = "unknown"
+
     parser = argparse.ArgumentParser(prog="mcp-guard")
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"mcp-guard {_version}",
+        help="Print version and exit.",
+    )
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p_syn = sub.add_parser("synthesize", help="Synthesize a policy from gap text.")

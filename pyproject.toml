@@ -17,7 +17,7 @@ build-backend = "setuptools.build_meta"
 # Llama Guard, etc.). Users `pip install mcp-guardrails` and write
 # `from mcp_guard import ...` — Pillow/PIL pattern.
 name = "mcp-guardrails"
-version = "0.5.3"
+version = "0.5.4"
 description = "Drop-in deterministic policy layer for MCP-using AI agents"
 readme = "README.md"
 requires-python = ">=3.11"

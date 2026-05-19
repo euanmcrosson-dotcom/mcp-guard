@@ -145,21 +145,19 @@ def _cmd_backtest(args: argparse.Namespace) -> int:
     return 0
 
 
-def main(argv: list[str] | None = None) -> int:
-    # Import here so the package version is read at runtime rather than baked
-    # in at PyInstaller-bundle time; that matches `<bin> --version` semantics
-    # downstream tools like Capframe expect.
-    try:
-        from importlib.metadata import version as _pkg_version
-        _version = _pkg_version("mcp-guardrails")
-    except Exception:
-        _version = "unknown"
+# Bumped in lockstep with pyproject.toml `version`. Lives here so
+# `--version` returns a real semver string even when shipped as a
+# PyInstaller --onefile bundle (where importlib.metadata can't find
+# the package distribution).
+__version__ = "0.5.6"
 
+
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="mcp-guard")
     parser.add_argument(
         "--version",
         action="version",
-        version=f"mcp-guard {_version}",
+        version=f"mcp-guard {__version__}",
         help="Print version and exit.",
     )
     sub = parser.add_subparsers(dest="cmd", required=True)

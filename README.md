@@ -1,6 +1,6 @@
 # mcp-guard
 
-[![PyPI](https://img.shields.io/badge/pypi-mcp--guard-blue.svg)](https://pypi.org/project/mcp-guard/)
+[![PyPI](https://img.shields.io/badge/pypi-mcp--guardrails-blue.svg)](https://pypi.org/project/mcp-guardrails/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python: 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](pyproject.toml)
 [![Tests: 97 passing (+2 opt-in)](https://img.shields.io/badge/tests-97_passing-success.svg)](tests/)
@@ -15,7 +15,7 @@ policies at the agent's tool-call boundary, and provides a
 backtest harness for measuring false-positive rate against
 legitimate traffic before deployment.
 
-> **v0.5.0 (2026-05-15):** 9 deterministic rule patterns across 122
+> **v0.5.6:** 9 deterministic rule patterns across 122
 > rules, **304-case backtest corpus**, TPR 1.00 / FPR 0.01. Four
 > framework adapters: Anthropic MCP SDK, LangChain, LlamaIndex,
 > CrewAI. LLM-augmented synthesis fallback (mock + real-API

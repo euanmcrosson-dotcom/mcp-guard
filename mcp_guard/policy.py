@@ -145,6 +145,27 @@ def evaluate(
     return Decision(allowed=True)
 
 
+def _any_leaf(left: Any, pred: Any) -> bool:
+    """Apply scalar predicate `pred` to `left`, recursing through list / tuple
+    / dict so a deny condition cannot be evaded by wrapping the offending
+    value in a container. Returns True if ANY leaf satisfies `pred`.
+
+    This closes the type/shape-confusion fail-open: a string deny op
+    (`contains "@evil.com"`) used to return False — i.e. "do not deny" — the
+    moment the arg was a list/dict instead of a str, so `to=["x@evil.com"]`
+    sailed past `to contains "@evil.com"`. Recursing makes the gate see the
+    value regardless of how it's wrapped. Used only on the POSITIVE
+    (match-to-deny) ops; the negative allowlist ops keep whole-value
+    semantics, because recursing those would let an attacker slip a
+    disallowed value past by mixing it with an allowed one.
+    """
+    if isinstance(left, (list, tuple)):
+        return any(_any_leaf(item, pred) for item in left)
+    if isinstance(left, dict):
+        return any(_any_leaf(v, pred) for v in left.values())
+    return bool(pred(left))
+
+
 def _check(cond: Condition, args: dict[str, Any], ctx: dict[str, Any]) -> bool:
     """True iff this condition's deny predicate holds — i.e. the call
     matches the deny criterion, contributing to a deny verdict when
@@ -154,19 +175,21 @@ def _check(cond: Condition, args: dict[str, Any], ctx: dict[str, Any]) -> bool:
         cond.value if cond.ref is None else _resolve(cond.ref, args, ctx)
     )
     if cond.op == "in":
-        return _safe_in(left, right)
+        # Whole-value membership OR any leaf's membership (container-aware).
+        return _safe_in(left, right) or _any_leaf(left, lambda x: _safe_in(x, right))
     if cond.op == "not_in":
         return not _safe_in(left, right)
     if cond.op == "equals":
-        return left == right
+        # Whole-value equality (preserves list==list) OR any leaf equals.
+        return left == right or _any_leaf(left, lambda x: x == right)
     if cond.op == "not_equals":
         return left != right
     if cond.op == "matches":
         import re
 
-        if not isinstance(left, str) or not isinstance(right, str):
+        if not isinstance(right, str):
             return False
-        return re.search(right, left) is not None
+        return _any_leaf(left, lambda x: isinstance(x, str) and re.search(right, x) is not None)
     if cond.op == "not_matches":
         import re
 
@@ -174,17 +197,17 @@ def _check(cond: Condition, args: dict[str, Any], ctx: dict[str, Any]) -> bool:
             return False
         return re.search(right, left) is None
     if cond.op == "starts_with":
-        if not isinstance(left, str) or not isinstance(right, str):
+        if not isinstance(right, str):
             return False
-        return left.startswith(right)
+        return _any_leaf(left, lambda x: isinstance(x, str) and x.startswith(right))
     if cond.op == "not_starts_with":
         if not isinstance(left, str) or not isinstance(right, str):
             return False
         return not left.startswith(right)
     if cond.op == "contains":
-        if not isinstance(left, str) or not isinstance(right, str):
+        if not isinstance(right, str):
             return False
-        return right in left
+        return _any_leaf(left, lambda x: isinstance(x, str) and right in x)
     if cond.op == "not_contains":
         if not isinstance(left, str) or not isinstance(right, str):
             return False

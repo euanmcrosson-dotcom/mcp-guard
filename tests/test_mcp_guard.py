@@ -131,6 +131,53 @@ def test_op_starts_with_returns_false_on_nonstring():
     assert _check(_cond("port", "starts_with", value="44"), args, {}) is False
 
 
+# ── Type/shape-confusion: positive deny ops must see through containers ──
+# A deny rule must not be bypassable by wrapping the offending value in a
+# list/dict. `contains "@evil.com"` on `["x@evil.com"]` is still an exfil.
+# Scalars that genuinely can't satisfy the op (an int for starts_with) stay
+# False — only str-bearing containers are matched into.
+
+
+def test_op_contains_sees_through_list_arg():
+    assert _check(_cond("to", "contains", value="@evil.com"), {"to": ["x@evil.com"]}, {}) is True
+
+
+def test_op_contains_sees_through_dict_values():
+    assert (
+        _check(_cond("to", "contains", value="@evil.com"), {"to": {"addr": "x@evil.com"}}, {})
+        is True
+    )
+
+
+def test_op_contains_sees_through_nested_container():
+    args = {"to": [{"primary": ["x@evil.com"]}]}
+    assert _check(_cond("to", "contains", value="@evil.com"), args, {}) is True
+
+
+def test_op_starts_with_sees_through_list_arg():
+    assert _check(_cond("path", "starts_with", value="/etc/"), {"path": ["/etc/passwd"]}, {}) is True
+
+
+def test_op_matches_sees_through_list_arg():
+    args = {"path": ["/home/u/.ssh/id_rsa"]}
+    assert _check(_cond("path", "matches", value=r"\.ssh/id_rsa"), args, {}) is True
+
+
+def test_op_equals_sees_through_list_arg():
+    assert _check(_cond("tool", "equals", value="rm"), {"tool": ["rm"]}, {}) is True
+
+
+def test_container_recursion_does_not_match_absent_value():
+    # No element contains the needle → still False (no false-positive deny).
+    assert _check(_cond("to", "contains", value="@evil.com"), {"to": ["x@good.com"]}, {}) is False
+
+
+def test_scalar_nonstring_still_returns_false():
+    # An int can't start_with a string prefix — unchanged from before.
+    assert _check(_cond("port", "starts_with", value="44"), {"port": 443}, {}) is False
+    assert _check(_cond("n", "contains", value="5"), {"n": 12345}, {}) is False
+
+
 # ───────────────────────────────────────────────────────────────────
 # 3. Per-pattern synthesizer tests (does free-text/indicator trigger?)
 # ───────────────────────────────────────────────────────────────────

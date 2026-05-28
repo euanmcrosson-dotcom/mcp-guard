@@ -61,7 +61,7 @@ from .backtest import (
     run_backtest,
 )
 
-__version__ = "0.5.2"
+__version__ = "0.5.7"
 
 __all__ = [
     "Condition",

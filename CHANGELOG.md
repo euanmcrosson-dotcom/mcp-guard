@@ -4,6 +4,30 @@ All notable changes to mcp-guard are documented here. Format inspired
 by [Keep a Changelog](https://keepachangelog.com/); versioning follows
 [SemVer](https://semver.org/).
 
+## [0.5.7] — 2026-05-28
+
+### Security
+
+- **Closed a type/shape-confusion fail-open in the evaluator.** Every positive
+  string deny op (`contains`, `matches`, `starts_with`, `equals`, `in`)
+  returned `False` — i.e. "do not deny" — the moment the call argument wasn't a
+  plain `str`. So a deny rule like `to contains "@evil.com"` was silently
+  bypassed by `to=["x@evil.com"]` (a list) or `to={"addr": "x@evil.com"}` (a
+  dict) — verified against the live evaluator. For an "unconditional gate, no
+  ambiguity" layer, a silent allow on a wrapped value is a real hole.
+- Fix: positive deny ops now recurse through `list`/`tuple`/`dict` args
+  (`policy._any_leaf`) and deny if any leaf matches. `equals`/`in` keep
+  whole-value semantics too (so `list == list` still works). Negative/allowlist
+  ops (`not_*`) are intentionally left whole-value — recursing those would let
+  an attacker slip a disallowed value past by mixing it with an allowed one.
+  Scalars that genuinely can't satisfy a string op (an int for `starts_with`)
+  still return `False` — no new false positives (backtest FP unchanged at 2).
+- Added the previously-untested type-confusion class to the backtest corpus
+  (304 → **308 cases**, list/dict/nested-wrapped attacks); the container-aware
+  evaluator catches all of them, so **TPR holds at 1.00** and the headline
+  metric now reflects a shape-shifting adversary, not just a string-crafting
+  one. 8 new unit tests (99 → 107).
+
 ## [0.5.2] — 2026-05-15
 
 ### Changed

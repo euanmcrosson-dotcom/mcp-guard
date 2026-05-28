@@ -3,7 +3,7 @@
 [![PyPI](https://img.shields.io/badge/pypi-mcp--guardrails-blue.svg)](https://pypi.org/project/mcp-guardrails/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python: 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](pyproject.toml)
-[![Tests: 97 passing (+2 opt-in)](https://img.shields.io/badge/tests-97_passing-success.svg)](tests/)
+[![Tests: 107 passing (+2 opt-in)](https://img.shields.io/badge/tests-107_passing-success.svg)](tests/)
 [![TPR: 1.00 / FPR: 0.01](https://img.shields.io/badge/TPR-1.00_%2F_FPR_0.01-success.svg)](#backtest-corpus)
 [![Case studies: 6](https://img.shields.io/badge/case_studies-6-9cf.svg)](case_studies/)
 
@@ -15,8 +15,14 @@ policies at the agent's tool-call boundary, and provides a
 backtest harness for measuring false-positive rate against
 legitimate traffic before deployment.
 
-> **v0.5.6:** 9 deterministic rule patterns across 122
-> rules, **304-case backtest corpus**, TPR 1.00 / FPR 0.01. Four
+> **v0.5.7:** closed a type/shape-confusion fail-open — string deny ops
+> (`contains`/`matches`/`starts_with`/`equals`/`in`) now recurse through
+> list/dict args, so a deny rule can't be evaded by wrapping the value in a
+> container (e.g. `to=["x@evil.com"]`). Corpus grew to **308 cases** with the
+> previously-untested type-confusion class.
+>
+> **v0.5.x:** 9 deterministic rule patterns across 122
+> rules, **308-case backtest corpus**, TPR 1.00 / FPR 0.01. Four
 > framework adapters: Anthropic MCP SDK, LangChain, LlamaIndex,
 > CrewAI. LLM-augmented synthesis fallback (mock + real-API
 > validated). **Six reproducible real-world [case studies](case_studies/)**:
@@ -327,11 +333,11 @@ scheduled tasks, registry Run keys), Postgres COPY/pg_read_file
 RCE, MySQL INTO DUMPFILE, MSSQL xp_cmdshell, jar://ftp://dict://
 SSRF schemes, RSA/OpenSSH PEM headers, GitHub PATs, Slack tokens.
 
-**v0.5.0 default-policy metrics:**
+**Default-policy metrics (current):**
 
 ```
-Corpus size:      304
-TP (caught):      106 / 106 attacks   →  TPR 1.0000
+Corpus size:      308
+TP (caught):      110 / 110 attacks   →  TPR 1.0000
 FP (over-blocks):   2 / 198 legit     →  FPR 0.0101
 ```
 

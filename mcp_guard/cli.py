@@ -28,7 +28,7 @@ from .policy import (
     PolicyRule,
     evaluate,
 )
-from .synthesis import synthesize_from_text
+from .synthesis import synthesize_default_policy, synthesize_from_text
 
 
 def _policy_from_yaml(text: str) -> GeneratedPolicy:
@@ -101,11 +101,38 @@ def _policy_from_yaml(text: str) -> GeneratedPolicy:
 
 
 def _cmd_synthesize(args: argparse.Namespace) -> int:
-    policy = synthesize_from_text(
-        args.detail,
-        technique_id=args.technique_id,
-        kind=args.kind,
-    )
+    if args.default:
+        policy = synthesize_default_policy(technique_id=args.technique_id)
+    else:
+        if args.detail is None:
+            print(
+                "mcp-guard: synthesize needs gap text, or --default for the "
+                "full built-in ruleset.",
+                file=sys.stderr,
+            )
+            return 2
+        policy = synthesize_from_text(
+            args.detail,
+            technique_id=args.technique_id,
+            kind=args.kind,
+        )
+
+    # A policy with no rules enforces nothing. The synthesizer returns one
+    # deliberately (it will not invent a rule it cannot justify), but emitting
+    # it on stdout with a 0 exit let an operator pipe an empty policy to a file
+    # and deploy it believing it was guarding something. Say so, and fail.
+    if not policy.rules:
+        print(
+            "mcp-guard: no rule generated — the gap text matched no known "
+            "attack pattern, so this policy would enforce nothing.\n"
+            "           Refine the wording (name the tool, the argument, or "
+            "the attack class), or use\n"
+            "           `mcp-guard synthesize --default` for the full "
+            "built-in ruleset.",
+            file=sys.stderr,
+        )
+        return 3
+
     print(policy.to_yaml())
     return 0
 
@@ -163,7 +190,17 @@ def main(argv: list[str] | None = None) -> int:
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p_syn = sub.add_parser("synthesize", help="Synthesize a policy from gap text.")
-    p_syn.add_argument("detail", help="Free-text description of the observed gap.")
+    p_syn.add_argument(
+        "detail",
+        nargs="?",
+        help="Free-text description of the observed gap. Omit when using --default.",
+    )
+    p_syn.add_argument(
+        "--default",
+        action="store_true",
+        help="Emit the full built-in ruleset (every known pattern) instead of "
+             "matching against gap text. This is the shippable production policy.",
+    )
     p_syn.add_argument("--technique-id", default="anonymous")
     p_syn.add_argument("--kind", default="telemetry_no_rule")
     p_syn.set_defaults(fn=_cmd_synthesize)

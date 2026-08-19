@@ -620,3 +620,49 @@ def test_yaml_round_trip_via_cli(tmp_path: Path):
     metrics = json.loads(bt.stdout)
     assert metrics["corpus_size"] >= 50
     assert metrics["tp"] >= 1
+
+
+def test_synthesize_that_matches_nothing_fails_loudly(tmp_path: Path):
+    """Gap text that matches no pattern must not look like success.
+
+    The synthesizer deliberately returns an empty policy rather than
+    fabricating a wrong rule — but the CLI used to print that empty
+    policy on stdout and exit 0, so an operator could pipe it to a file
+    and deploy a policy that enforces nothing, with no signal at all.
+    """
+    res = subprocess.run(
+        [sys.executable, "-m", "mcp_guard.cli", "synthesize",
+         "the agent may read files but must never send funds or delete data"],
+        capture_output=True, text=True,
+    )
+    assert res.returncode != 0, (
+        "a policy with zero rules must not exit 0 — stdout was:\n" + res.stdout
+    )
+    assert "no rule" in res.stderr.lower() or "0 rules" in res.stderr.lower(), (
+        "must say on stderr that nothing was generated, got: " + res.stderr
+    )
+
+
+def test_synthesize_default_emits_the_shippable_ruleset(tmp_path: Path):
+    """`--default` exposes synthesize_default_policy() — the full
+    deterministic ruleset — which was library-only and unreachable from
+    the CLI, so `synthesize` had no way to produce a usable policy when
+    the gap text matched no pattern."""
+    policy_path = tmp_path / "default.yaml"
+    res = subprocess.run(
+        [sys.executable, "-m", "mcp_guard.cli", "synthesize", "--default"],
+        capture_output=True, text=True, check=True,
+    )
+    assert res.stdout.count("- id:") >= 5, (
+        "default policy should carry the full ruleset, got:\n" + res.stdout
+    )
+    policy_path.write_text(res.stdout, encoding="utf-8")
+
+    # It must be a real policy: parseable back in, and it must catch
+    # attacks in the corpus rather than being decorative.
+    bt = subprocess.run(
+        [sys.executable, "-m", "mcp_guard.cli", "backtest", str(policy_path)],
+        capture_output=True, text=True, check=True,
+    )
+    metrics = json.loads(bt.stdout)
+    assert metrics["tp"] >= 1, f"default policy caught nothing: {metrics}"

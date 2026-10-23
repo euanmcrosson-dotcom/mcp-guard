@@ -107,7 +107,7 @@ def synthesize_with_llm(
     technique_id: str = "llm-fallback",
     fallback: bool = True,
     client: Any = None,
-    model: str = "claude-sonnet-4-6",
+    model: str = "claude-sonnet-5-5",
     max_tokens: int = 800,
 ) -> GeneratedPolicy:
     """Synthesise a policy, falling back to an LLM for novel gap
